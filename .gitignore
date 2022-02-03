@@ -38,3 +38,7 @@ HashingCSharp/Program.cs
 *.v2
 *.v1
 HashingC++/Main.cpp
+HashingC#/obj/Debug/net5.0/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs
+HashingC#/obj/Debug/net5.0/HashingC#.AssemblyInfo.cs
+HashingC#/obj/Debug/net5.0/HashingCSharp.AssemblyInfo.cs
+HashingC#/Program.cs
