@@ -15,7 +15,7 @@ using namespace std;
 
 int main() {
 
-    // Kruskal
+   // Kruskal
 
  //   auto p0 = make_shared<Person>("Ivanov_a", "assasdsdf", 0);
  //   auto p1 = make_shared<Person>("Ivanov_b", "assasdsdf", 1);
