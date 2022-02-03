@@ -89,7 +89,7 @@ vector<vector<size_t>> KruskalMST( vector<vector<size_t>>& adj_m, vector<Person_
 	int counter = 0;
 	for ( auto& v : r ) {
 		cout << get<0>( v )->Name << " " << get<1>( v )->Name << get<2>( v ) << endl;
-		counter += get<2>(v);
+		counter += get<2>( v );
 	}
 	cout << counter << endl;
 	
