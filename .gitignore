@@ -35,3 +35,6 @@ HashingCSharp/Program.cs
 *.txt
 *.obj
 *.idb
+*.v2
+*.v1
+HashingC++/Main.cpp
