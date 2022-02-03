@@ -25,7 +25,7 @@ public class DicPerfect<TKey, TValue> : Hashing<TKey, TValue> where TKey: ICompa
 			pars[ hash1 ].m = pars[ hash1 ].cnt_elms = 1;
 			main_t[ hash1 ] = new Record_Base[ pars[ hash1 ].cnt_elms ];
 		} else {
-			FullRehash2Level( hash1, pars[ hash1 ].cnt_elms + 1 );
+			FullRehash2ndLevel( hash1, pars[ hash1 ].cnt_elms + 1 );
 		}
 
 		uint hash2;
@@ -37,7 +37,7 @@ public class DicPerfect<TKey, TValue> : Hashing<TKey, TValue> where TKey: ICompa
 			
 			if ( main_t[ hash1 ][ hash2 ] == null ) { break; }
 
-			FullRehash2Level( hash1, pars[ hash1 ].cnt_elms );
+			FullRehash2ndLevel( hash1, pars[ hash1 ].cnt_elms );
 			
 			// we do 100 tries before quitting
 			// we do this because perfect hashing is used only for predefined and not changing finite reasonable number of keys
@@ -56,7 +56,7 @@ public class DicPerfect<TKey, TValue> : Hashing<TKey, TValue> where TKey: ICompa
 		if ( ! res.Item1 ) { return; }
 		var hash1 = res.Item2;
 		main_t[ hash1][ res.Item3 ] = null;
-		FullRehash2Level( hash1, pars[ hash1 ].cnt_elms - 1 );
+		FullRehash2ndLevel( hash1, pars[ hash1 ].cnt_elms - 1 );
 	}
 
 	public override Tuple<bool, TValue> Search( TKey key) {
@@ -104,7 +104,7 @@ public class DicPerfect<TKey, TValue> : Hashing<TKey, TValue> where TKey: ICompa
 		
 	}
 
-	void FullRehash2Level( uint hash1, uint cnt_elms ) {
+	void FullRehash2ndLevel( uint hash1, uint cnt_elms ) {
 
 		if ( cnt_elms == 0 ) { main_t[ hash1 ] = null; return; }
 

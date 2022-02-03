@@ -22,3 +22,16 @@ HashingCSharp/obj/Debug/net5.0/HashingCSharp.csproj.FileListAbsolute.txt
 *.targets
 HashingCpp/Main.cpp
 HashingCSharp/Program.cs
+.vs/BaseAlgorithms/v17/.suo
+*.db
+*.db-shm
+*.db-wal
+*.opendb
+*.ipch
+*.log
+*.recipe
+*.ilk
+*.tlog
+*.txt
+*.obj
+*.idb

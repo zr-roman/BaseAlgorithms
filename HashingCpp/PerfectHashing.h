@@ -33,7 +33,7 @@ public:
 			pars[ hash1 ]->m = pars[ hash1 ]->cnt_elms = 1;
 			main_t[ hash1 ].resize( pars[ hash1 ]->cnt_elms );
 		} else {
-			FullRehash2Level( hash1, pars[ hash1 ]->cnt_elms + 1 );
+			FullRehash2ndLevel( hash1, pars[ hash1 ]->cnt_elms + 1 );
 		}
 
 		unsigned int hash2;
@@ -45,7 +45,7 @@ public:
 			
 			if ( main_t[ hash1 ][ hash2 ] == nullptr ) { break; }
 
-			FullRehash2Level( hash1, pars[ hash1 ]->cnt_elms );
+			FullRehash2ndLevel( hash1, pars[ hash1 ]->cnt_elms );
 			
 			// we do 100 tries before quitting
 			// we do this because perfect hashing is used only when we work with finite and relatively small (at least reasonable) number of keys
@@ -67,7 +67,7 @@ public:
 		}
 		auto hash1 = get<1>( res );
 		main_t[ hash1 ][ get<2>( res ) ] = nullptr;
-		FullRehash2Level( hash1, pars[ hash1 ]->cnt_elms - 1 );
+		FullRehash2ndLevel( hash1, pars[ hash1 ]->cnt_elms - 1 );
 	};
 
 	virtual pair<bool, TValue>Search( const TKey& key) override {
@@ -121,7 +121,7 @@ private:
 		
 	};
 
-	auto FullRehash2Level( unsigned int hash1, unsigned int cnt_elms ) -> void {
+	auto FullRehash2ndLevel( unsigned int hash1, unsigned int cnt_elms ) -> void {
 
 		if ( cnt_elms == 0 ) { main_t[ hash1 ].clear(); return; }
 
