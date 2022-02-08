@@ -9,7 +9,7 @@ using namespace std;
 
 bool BellmanFord( const vector<vector<int>>& adj_matrix, const vector<Person_ptr>& vertices, const Person_ptr& s ) {
     
-    N = 0;
+    /* N = 0; */
 
     // initialization
     for ( auto& v : vertices ) {
