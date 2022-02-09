@@ -5,11 +5,30 @@
 #include "strategy.h"
 #include "singleton.h"
 #include "singleton.cpp"
+#include "AbstractFactory.h"
 
 using namespace std;
 
 void MainProgram()
 {
+
+    cout << "///////////////////////////////////////////------- ABSTRACT FACTORY --------////////////////////////////////////////";
+
+    Game game;
+    JacksFactory jacks_factory;
+    TomsFactory toms_factory;
+    MarysFactory marys_factory;
+
+    auto jacks_bag = game.CreateBag( jacks_factory );
+    auto toms_bag = game.CreateBag( toms_factory );
+    auto marys_bag = game.CreateBag( marys_factory );
+    cout << "\nJack's bag:" << endl;
+    jacks_bag->GetInfo();
+    cout << "\nTom's bag:" << endl;
+    toms_bag->GetInfo();
+    cout << "\nMary's bag:" << endl;
+    marys_bag->GetInfo();
+
     /*///////////////////////////////////////////-------FLYWEIGHT--------////////////////////////////////////////*/
     auto a = make_unique<char>('a');
     auto b = make_unique<char>('b');
@@ -29,9 +48,8 @@ void MainProgram()
     
     string s1 = "sdfsdf";
 
-
-    /*///////////////////////////////////////////-------STRATEGY--------////////////////////////////////////////*/
-    cout << "///////////////////////////////////////////-------STRATEGY--------////////////////////////////////////////";
+    
+    cout << endl << "///////////////////////////////////////////-------STRATEGY--------////////////////////////////////////////";
 
     vector<int> arr {6,5,3,2,8,0,12,5,34,8,6,3};
             
@@ -49,9 +67,7 @@ void MainProgram()
     arr.insert(arr.cbegin() , 19);
 
     auto worker3 = make_unique<WorkerOnCollection<int>>();
-    worker3->DoSomeWorkOnCollection( arr );
-
-    /*///////////////////////////////////////////--------SINGLETON------////////////////////////////////////////*/
+    worker3->DoSomeWorkOnCollection( arr );    
 
     cout << endl << "///////////////////////////////////////////--------SINGLETON------////////////////////////////////////////" << endl;
 

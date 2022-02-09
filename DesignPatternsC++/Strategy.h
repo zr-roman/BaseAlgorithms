@@ -12,6 +12,7 @@ using namespace std;
 #pragma region Классы, составляющие Стратегию
 
 #pragma region Strategy (abstract)
+
 template <typename T>
 class SortingAlgorithm {
 public:
@@ -20,6 +21,7 @@ protected:
 	SortingAlgorithm( const Order& order );
 	const Order& _order;
 };
+
 #pragma endregion
 
 #pragma region Классы ConcreteStrategy
@@ -64,7 +66,7 @@ private:
 
 #pragma endregion
 
-#pragma region Impl
+#pragma region Implementation
 
 template <typename T>
 ShellSort<T>::ShellSort( const Order& order ) : SortingAlgorithm<T>( order ) {
