@@ -59,7 +59,7 @@ private:
 		while ( test >= 0 ) {
 			link[ test ] = target;
 			while ( target <= pattern.length() - 1 && pattern[ test ] != pattern[ target ] ) {
-				jump[ target ] = min( jump[ target ], pattern.length() - 1 - test );
+				jump[ target ] = min<unsigned int>( jump[ target ], pattern.length() - 1 - test );
 				target = link[ target ];
 			}
 			test--;
@@ -67,13 +67,13 @@ private:
 		}
 
 		for ( size_t i = 0; i <= target; i++ ) {
-			jump[ i ] = min( jump[ i ], pattern.length() + target - i );
+			jump[ i ] = min<unsigned int>( jump[ i ], pattern.length() + target - i );
 		}
 
 		auto temp = link[ target ];
 		while ( target < pattern.length()  ) {
 			while ( target <= temp ) {
-				jump[ target ] = min( jump[ target ], temp - target + pattern.length() );
+				jump[ target ] = min<unsigned int>( jump[ target ], temp - target + pattern.length() );
 				target--;
 			}
 			temp = link[ temp ];

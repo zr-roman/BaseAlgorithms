@@ -41,6 +41,7 @@ shared_ptr<ChainOrder> MatrixChainOrder( vector<size_t>& p ) {
 				auto tmp = arr_m[ i ][ k ] + 
 						   arr_m[ k + 1 ][ j ] + 
 						   p[ i ] * p[ k + 1 ] * p[ j + 1 ];
+
 				if ( tmp < min ) {
 					min = tmp;
 					arr_s[ i ][ j ] = k;
@@ -50,6 +51,8 @@ shared_ptr<ChainOrder> MatrixChainOrder( vector<size_t>& p ) {
 			arr_m[ i ][ j ] = min == UINT_MAX ? 0 : min;
 		}
 	}
+	
+#pragma region for_test
 	if (   !(arr_m[0][1] == 15'750 && arr_m[0][2]== 7'875 && arr_m[0][3] == 9'375 && arr_m[0][4] == 11'875 && arr_m[0][5] == 15'125 
 		&& arr_m[1][2] == 2'625 && arr_m[1][3] == 4'375 && arr_m[1][4] == 7'125 && arr_m[1][5] == 10'500
 		&& arr_m[2][3] == 750   && arr_m[2][4] == 2'500  && arr_m[2][5] == 5'375
@@ -58,6 +61,8 @@ shared_ptr<ChainOrder> MatrixChainOrder( vector<size_t>& p ) {
 		) {
 		throw runtime_error("must not hit into here!");
 	}
+#pragma endregion
+
 	return make_shared<ChainOrder>( arr_m, arr_s );
 
 };

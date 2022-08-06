@@ -1,14 +1,16 @@
-
 #include <iostream>
 #include "FibonacciNumbers.h"
 #include "MatrixChainMultiplication.h"
 #include "LongestCommonSubsequence.h"
 #include "Knapsack.h"
+#include "UniquePaths.h"
 
 using namespace std;
 
 int main()
 {
+	vector<vector<int>> v;
+	cout << func(4, 4, v) << endl << endl;
 
 	int n = 8;
 	

@@ -66,7 +66,7 @@ private:
 		auto m = pattern.length();
 		for ( unsigned int i = 0; i <= m; i++ ) {
 			for ( auto& a : alphabet ) {
-				auto k = min( m + 1, i + 2 );
+				auto k = min<unsigned int>( m + 1, i + 2 );
 				do {
 					k--;
 				} while ( !IsSuffix( pattern.substr( 0, k ), pattern.substr( 0, i ) + a ) );

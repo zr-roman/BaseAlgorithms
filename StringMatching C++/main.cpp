@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <memory>
 #include "FiniteAutomaton.h"
@@ -6,6 +5,7 @@
 #include "KnuthMorrisPratt.h"
 #include "BoyerMoore.h"
 #include "BruteForce.h"
+
 int main()
 {
     auto v = make_pair<int, int>(4, 3);
