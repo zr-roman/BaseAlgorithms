@@ -7,6 +7,7 @@ using namespace std;
 
 // Bellman-Ford ( works also when there are negative cycles ), used to detect negative cycles, O(V*E) time complexity
 
+// Bellman-Ford with adjacency matrix
 bool BellmanFord( const vector<vector<int>>& adj_matrix, const vector<Person_ptr>& vertices, const Person_ptr& s ) {
     
     /* N = 0; */
@@ -19,8 +20,8 @@ bool BellmanFord( const vector<vector<int>>& adj_matrix, const vector<Person_ptr
     s->d = 0;
 
     // Bellman-Ford
-    for ( size_t i = 0; i < vertices.size() - 1 ; i++) {
-
+    for ( size_t i = 0; i < vertices.size() - 1; i++) {
+   
         for ( size_t k = 0; k < adj_matrix.size(); k++ ) {
 
             for ( size_t j = 0; j < adj_matrix.at( k ).size(); j++ ) {
@@ -51,12 +52,11 @@ bool BellmanFord( const vector<vector<int>>& adj_matrix, const vector<Person_ptr
             auto w = adj_matrix.at( k ).at( j );
 
             if ( v->d > u->d + w ) {
-                return false;
+                return false; /* negative cycle detected */
             }
 
         }
     }
 
-    return true;
-
+    return true; /* negative cycle not detected */
 };
