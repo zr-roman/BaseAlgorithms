@@ -4,6 +4,7 @@
 #include<list>
 #include <unordered_set>
 #include "Header.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -12,33 +13,34 @@ using namespace std;
 // Breadth-first search with adjacency lists
 void BFS( const vector<list<Person_ptr>>& adj_lists, const Person_ptr& s ) {
 
-    vector<Person_ptr> frontier = { s };
-    unordered_set<Person_ptr> visited = { };
+    int i = 0; // counter for levels
 
-    size_t counter = 0;
-
+    unordered_set<Person_ptr> frontier = { s };
+    unordered_map<Person_ptr, int> level = { { s, i++ } };
+    unordered_map<Person_ptr, Person_ptr> parent = { { s, nullptr } };
+        
     while ( frontier.size() != 0 ) {
 
-        cout << " Layer " << counter << ":" << endl;
-        counter++;
+        cout << " Level " << ( i - 1 ) << ":" << endl;
 
-        vector<Person_ptr> next_frontier;
+        unordered_set<Person_ptr> next_frontier;
 
-        for ( auto& item : frontier ) {
+        for ( auto& u : frontier ) {
                         
-            item.get()->Print();
-            visited.insert( item );
+            u.get()->Print();
 
-            auto lst = adj_lists.at( item.get()->GetAdjId() );
+            auto& lst = adj_lists.at(u.get()->GetAdjId());
 
-            for ( auto const& p : lst ) {
-                if ( visited.count( p ) ) {
-                    continue;
+            for ( auto const& v : lst ) {
+                if ( level.count( v ) == 0 ) {
+                    level[ v ] = i;
+                    parent[ v ] = u;
+                    next_frontier.insert( v );
                 }
-                next_frontier.push_back( p );
             }
         }
         frontier = next_frontier;
+        i++;
     }
 
 };
@@ -46,34 +48,34 @@ void BFS( const vector<list<Person_ptr>>& adj_lists, const Person_ptr& s ) {
 // Breadth-first search with adjacency matrix
 void BFS( const vector<vector<bool>>& adj_matrix, const vector<Person_ptr>& vertices, const Person_ptr& s ) {
 
-    vector<Person_ptr> frontier = { s };
-    unordered_set<Person_ptr> visited = { s };
+    int i = 0;
 
-    size_t counter = 0;
+    vector<Person_ptr> frontier = { s };
+    unordered_map<Person_ptr, int> level = { { s, i++ } };
+    unordered_map<Person_ptr, Person_ptr> parent = { { s, nullptr } };
 
     while ( frontier.size() != 0 ) {
 
-        cout << " Layer " << counter << ":" << endl;
-        counter++;
+        cout << " Layer " << (i - 1) << ":" << endl;
 
         vector<Person_ptr> next_frontier;
 
-        for ( auto& item : frontier ) {
+        for ( auto& u : frontier ) {
 
-            item.get()->Print();
-            visited.insert( item );
+            u.get()->Print();
             
-            auto arr = adj_matrix.at( item.get()->GetAdjId() );
+            auto arr = adj_matrix.at( u.get()->GetAdjId() );
 
             for ( size_t j = 0; j < arr.size(); j++ ) {
                 if ( arr.at( j ) == 0 ) {
                     continue;
                 }
-                if ( visited.count( vertices.at( j ) ) ) {
-                    continue;
+                auto& v = vertices.at( j );
+                if ( level.count( v ) == 0 ) {
+                    level[ v ] = i;
+                    parent[ v ] = u;
+                    next_frontier.push_back( v );
                 }
-                next_frontier.push_back( vertices.at( j ) );
-                
             }
         }
         frontier = next_frontier;
