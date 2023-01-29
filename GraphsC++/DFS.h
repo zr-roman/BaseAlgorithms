@@ -36,7 +36,7 @@ void DFS( const vector<vector<bool>>& adj_matrix, const vector<Person_ptr>& vert
     s->Print();
     visited->insert( s );
 
-    auto vect = adj_matrix.at( s->GetAdjId() );
+    auto& vect = adj_matrix.at(s->GetAdjId());
 
     for ( auto i = 0; i < vect.size(); i++ ) {
 
@@ -44,7 +44,7 @@ void DFS( const vector<vector<bool>>& adj_matrix, const vector<Person_ptr>& vert
             continue;
         }
 
-        auto item = vertices.at( i );
+        auto& item = vertices.at(i);
 
         if ( visited->count( item ) ) {
             continue;

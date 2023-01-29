@@ -64,7 +64,7 @@ void BFS( const vector<vector<bool>>& adj_matrix, const vector<Person_ptr>& vert
 
             u.get()->Print();
             
-            auto arr = adj_matrix.at( u.get()->GetAdjId() );
+            auto& arr = adj_matrix.at(u.get()->GetAdjId());
 
             for ( size_t j = 0; j < arr.size(); j++ ) {
                 if ( arr.at( j ) == 0 ) {
@@ -79,5 +79,6 @@ void BFS( const vector<vector<bool>>& adj_matrix, const vector<Person_ptr>& vert
             }
         }
         frontier = next_frontier;
+        i++;
     }
 };
