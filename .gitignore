@@ -125,3 +125,5 @@ GraphsCs/obj/Release/net6.0/.NETCoreApp,Version=v6.0.AssemblyAttributes.cs
 GraphsCs/obj/Release/net6.0/GraphsCs.AssemblyInfo.cs
 GraphsCs/obj/Release/net6.0/GraphsCs.GlobalUsings.g.cs
 .vs/slnx.sqlite
+GraphsCs/obj/Debug/net6.0/GraphsCs.csproj.BuildWithSkipAnalyzers
+SortingsC\#/obj/Debug/net6.0/SortingsC\#.csproj.BuildWithSkipAnalyzers
