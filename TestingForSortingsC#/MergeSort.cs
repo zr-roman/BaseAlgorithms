@@ -11,7 +11,7 @@ namespace Testing {
             while (N-- > 0)
             {
                 GenerateNewArray();
-                Lib.MergeSort( arr, Order.ASC, int.MinValue, int.MaxValue );
+                Lib.MergeSort( arr, Order.ASC );
                 AssertionAsc();
             }
         }
@@ -22,7 +22,7 @@ namespace Testing {
             while (N-- > 0)
             {
                 GenerateNewArray();
-                Lib.MergeSort( arr, Order.DESC, int.MinValue, int.MaxValue );
+                Lib.MergeSort( arr, Order.DESC );
                 AssertionDesc();
             }
         }

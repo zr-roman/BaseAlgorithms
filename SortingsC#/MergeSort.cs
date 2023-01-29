@@ -1,22 +1,17 @@
-﻿
-using System;
+﻿using System;
 
 namespace Sortings {
 
     public static partial class Lib {
         
-        public static void MergeSort<T>( T[] arr, Order order, T minInfinity, T maxInfinity ) where T: IComparable<T> {
-            DoPerformSort( new MergeSortInner<T>( arr, order, minInfinity, maxInfinity ) );
+        public static void MergeSort<T>( T[] arr, Order order ) where T: IComparable<T> {
+            DoPerformSort( new MergeSortInner<T>( arr, order ) );
         }
 
         private class MergeSortInner<T> : SortAbstract<T> where T: IComparable<T> {
-            
-            private T minInfinity;
-            private T maxInfinity;
+                        
+            public MergeSortInner( T[] arr, Order order ) : base( arr, order) {
 
-            public MergeSortInner( T[] arr, Order order, T minInfinity, T maxInfinity ) : base( arr, order ) {
-                this.minInfinity = minInfinity;
-                this.maxInfinity = maxInfinity;
             }
 
             protected override void DoSort( uint start, uint end ) {
@@ -34,8 +29,8 @@ namespace Sortings {
                 var n1 = mid - start + 1;
                 var n2 = end - mid;
 
-                var arrayB = new T[ n1 + 1 ];
-                var arrayC = new T[ n2 + 1 ];
+                var arrayB = new T[ n1 ];
+                var arrayC = new T[ n2 ];
                 
                 var bi = 0;
                 var ci = 0;
@@ -43,23 +38,34 @@ namespace Sortings {
                 for ( uint i = start; i <= mid; i++ ) {
                     arrayB[ bi++ ] = arr[ i ];
                 }
-                arrayB[ ^1 ] = order.Equals( Order.ASC ) ? maxInfinity : minInfinity;
-                
+                                
                 for ( uint i = mid + 1; i <= end; i++ ) {
                     arrayC[ ci++ ] = arr[ i ];
                 }
-                arrayC[ ^1 ] = order.Equals( Order.ASC ) ? maxInfinity : minInfinity;
-
+                
                 bi = ci = 0;
 
                 for ( uint i = start; i <= end; i++ ) {
+
+                    if ( bi >= arrayB.Length ) {
+                        arr[ i ] = arrayC[ ci++ ];
+                        continue;
+                    }
+
+                    if ( ci >= arrayC.Length ) {
+                        arr[ i ] = arrayB[ bi++ ];
+                        continue;
+                    }
+
                     var compareResult = arrayB[ bi ].CompareTo( arrayC[ ci ] );
+
                     if ( ( order.Equals( Order.ASC ) && compareResult <= 0 ) || ( order.Equals( Order.DESC ) && compareResult > 0 ) ) {
                         arr[ i ] = arrayB[ bi++ ];
                     } else {
                         arr[ i ] = arrayC[ ci++ ];
                     }
                 }
+
             }
         }
     }
