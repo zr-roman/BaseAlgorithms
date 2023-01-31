@@ -22,7 +22,7 @@ namespace GraphsCs {
                 // find min capacity of the found augmenting path
                 var min_capacity = int.MaxValue;
                 var curr = vertices.FirstOrDefault( x => x.GetAdjId() == vertices.Count - 1 );
-                while ( curr!.GetAdjId() != 0 ) {
+                while ( curr!.GetAdjId() != 0 ) { // while curr is not sink
                     var par = parent[ curr! ];
                     var curr_capacity = adjMatrix[ par.GetAdjId(), curr.GetAdjId() ];
                     if ( min_capacity > curr_capacity ) {
@@ -33,7 +33,7 @@ namespace GraphsCs {
 
                 // traverse from sink to source along the found augmenting path to correct residual capacity
                 curr = vertices.FirstOrDefault( x => x.GetAdjId() == vertices.Count - 1 );
-                while ( curr!.GetAdjId() != 0 ) {
+                while ( curr!.GetAdjId() != 0 ) { // while curr is not sink
                     var par = parent[ curr! ];
                     adjMatrix[ par.GetAdjId(), curr.GetAdjId() ] -= min_capacity;
                     adjMatrix[ curr.GetAdjId(), par.GetAdjId() ] += min_capacity;
