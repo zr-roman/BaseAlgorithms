@@ -44,11 +44,11 @@ namespace GraphsCs {
                     var w = adjMatrix[ k, j ];
 
                     if ( v.d > u.d + w ) {
-                        return false; // negative loop detected
+                        return false; // negative cycle detected
                     }
                 }
             }
-            return true; // negative loop not detected
+            return true; // negative cycle not detected
         }
 
         private static void Relax(Vertex u, Vertex v, int w) {
