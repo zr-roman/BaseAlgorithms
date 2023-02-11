@@ -48,7 +48,6 @@ namespace GraphsCs {
                 if ( distances[ i, j ] < 0 ) {
                     return false; // negative cycle detected
                 }
-
             }
 
             return true; // negative cycle not detected
