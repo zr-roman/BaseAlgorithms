@@ -1,6 +1,4 @@
-﻿
-
-#include "Lib.h"
+﻿#include "Lib.h"
 #include <vector>
 
 using namespace std;
