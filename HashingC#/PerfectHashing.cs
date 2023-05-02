@@ -35,7 +35,9 @@ public class DicPerfect<TKey, TValue> : Hashing<TKey, TValue> where TKey: ICompa
 			
 			hash2 = GetHash( key, pars[ hash1 ].a, pars[ hash1 ].b, pars[ hash1 ].m );
 			
-			if ( main_t[ hash1 ][ hash2 ] == null ) { break; }
+			if ( main_t[ hash1 ][ hash2 ] == null ) { 
+				break; 
+			}
 
 			FullRehash2ndLevel( hash1, pars[ hash1 ].cnt_elms );
 			
@@ -122,11 +124,16 @@ public class DicPerfect<TKey, TValue> : Hashing<TKey, TValue> where TKey: ICompa
 			bool done = true;
 			for ( uint i = 0; i < tmp_vect.Length; i++ ) {
 
-				if ( tmp_vect[ i ] == null ) { continue; }
+				if ( tmp_vect[ i ] == null ) { 
+					continue; 
+				}
 
 				var hash2 = GetHash( tmp_vect[ i ].key, pars[ hash1 ].a, pars[ hash1 ].b,  pars[ hash1 ].m );
 
-				if ( main_t[ hash1 ][ hash2 ] != null ) { done = false; break; }
+				if ( main_t[ hash1 ][ hash2 ] != null ) { 
+					done = false; 
+					break; 
+				}
 
 				main_t[ hash1 ][ hash2 ] = new Record_Base( tmp_vect[ i ].key, tmp_vect[ i ].value );
 			}

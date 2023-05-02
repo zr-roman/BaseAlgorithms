@@ -185,9 +185,9 @@ public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComp
     uint DoProbe( TKey key, uint hash, uint i ) {
 
         return probing_method switch {
-            ProbingMethod.DOUBLE_HASHING => DoubleHashing(key, hash, i),
             ProbingMethod.LINEAR_PROBING => LinearProbing(hash, i),
             ProbingMethod.QUADRATIC_PROBING => QuadraticProbing(hash, i),
+            ProbingMethod.DOUBLE_HASHING => DoubleHashing(key, hash, i),
             _ => throw new Exception("Must not hit into here!"),
         };
     }
@@ -202,5 +202,4 @@ public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComp
         arr[ hash_ex ] =  new Record( key, value, hash );
         count_elements++;
     }
-    
 }
