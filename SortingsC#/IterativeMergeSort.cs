@@ -20,14 +20,16 @@ namespace Sortings {
             protected override void DoSort( uint start, uint end ) {
 
                 int counter = 0;
-                var dic = new Dictionary<int, T[]>();
+                var dic = new Dictionary<int, T[]>(); // хеш-таблица отсортированных четверок
                 uint prevStart = 0;
                 
                 var needBreak = false;
+
+                int step = 1;
                 
-                for(uint step = 1; step <= 3; step += 2 ) {
+                while(step <= 3) { 
                   
-                    for (uint i = 0; i < arr.Length; i += step + 1) {
+                    for (uint i = 0; i < arr.Length; i += (uint)step + 1) {
 
                         var en = i + step;
                         
@@ -45,67 +47,80 @@ namespace Sortings {
                         }
                         prevStart = i;
                         
-                        Merge(i, mi, en);
+                        Merge(i, (uint)mi, (uint)en);
 
                         if (arr.Length == 2) {
                             return;
                         }
 
-                        if (step == 3) {
-                            if (en - i + 1 == 1)
-                            {
-                                dic.Add(counter++, new T[] { arr[i] });
-                            }
-                            else if (en - i + 1 == 2)
-                            {
-                                dic.Add(counter++, new T[] { arr[i], arr[i + 1] });
-                            }
-                            else if (en - i + 1 == 3)
-                            {
-                                dic.Add(counter++, new T[] { arr[i], arr[i + 1], arr[i + 2] });
-                            }
-                            else {
-                                dic.Add(counter++, new T[] { arr[i], arr[i + 1], arr[i + 2], arr[i + 3] });
-                            }
-                        }
+                        FillInDictionary(dic, i, step, en, ref counter);
                     }
-                    
+
                     if (needBreak)
                     {
                         break;
                     }
+
+                    step += 2;
                 }
 
                 var listOfTasks = new List<Task>();
-                int t = 2;
-                int s = 1;
 
-                while (dic.Count(x => x.Value != null) != 1) { 
-                    for (int i = 0; i+s  < dic.Count && i < dic.Count; i+=t)
-                    {
-                        var j = i; // paradox
+                MergeAllParts(listOfTasks, dic).GetAwaiter().GetResult();
 
-                        var task = Task.Factory.StartNew(() => {
-                            Merge2(dic, j, j + s);
-                        });
-                        listOfTasks.Add(task);
+                FillResultingArray(listOfTasks, dic).GetAwaiter().GetResult();
+            }
+
+            private void FillInDictionary(Dictionary<int, T[]> dic, uint i, int step, long en, ref int counter) {
+                
+                if (step == 3) {
+
+                    var count = en - i + 1;
+
+                    if (count == 1) {
+                        dic.Add(counter++, new T[] { arr[i] });
+                    } else if (count == 2) {
+                        dic.Add(counter++, new T[] { arr[i], arr[i + 1] });
+                    } else if (count == 3) {
+                        dic.Add(counter++, new T[] { arr[i], arr[i + 1], arr[i + 2] });
+                    } else if (count == 4) {
+                        dic.Add(counter++, new T[] { arr[i], arr[i + 1], arr[i + 2], arr[i + 3] });
                     }
-                    Task.WhenAll(listOfTasks).ConfigureAwait(false).GetAwaiter().GetResult();
-                    t*=2;
-                    s*=2;
                 }
+            }
 
-                Task.WhenAll(listOfTasks).ContinueWith( (prev) => {
-                    foreach (var key in dic.Keys) {
-                        if (dic[key] != null) {
-                            for (int i = 0; i < arr.Length; i++) {
+            private async Task MergeAllParts(List<Task> listOfTasks, Dictionary<int, T[]> dic) { 
+                 
+                int step = 2;
+
+                while (dic[0].Length != arr.Length ) { 
+                    for (int i = 0; i < dic.Count && i + step / 2 < dic.Count; i+= step) {
+                        
+                        var j = i; 
+                        
+                        listOfTasks.Add( Task.Factory.StartNew(() => { Merge2(dic, j, j + step / 2); }) );
+                    }
+                    await Task.WhenAll(listOfTasks).ConfigureAwait(false);
+                    step *= 2;
+                }
+            }
+
+            private async Task FillResultingArray(List<Task> listOfTasks, Dictionary<int, T[]> dic) {
+
+                await Task.WhenAll(listOfTasks).ContinueWith((prev) => {
+                    foreach (var key in dic.Keys)
+                    {
+                        if (dic[key] != null)
+                        {
+                            for (int i = 0; i < arr.Length; i++)
+                            {
                                 arr[i] = dic[key][i]; // перекидывание результата в исходный массив
                             }
                             dic = null;
                             break;
                         }
                     }
-                }).ConfigureAwait(false).GetAwaiter().GetResult();
+                }).ConfigureAwait(false);
             }
 
             private void Merge( uint start, uint mid, uint end ) {
@@ -149,7 +164,6 @@ namespace Sortings {
                         arr[ i ] = arrayC[ ci++ ];
                     }
                 }
-
             }
 
             private void Merge2(Dictionary<int, T[]> dic, int k, int j  ) {
