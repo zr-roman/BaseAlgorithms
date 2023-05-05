@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sortings {
@@ -69,6 +68,8 @@ namespace Sortings {
                 MergeAllParts(listOfTasks, dic).GetAwaiter().GetResult();
 
                 FillResultingArray(listOfTasks, dic).GetAwaiter().GetResult();
+
+                dic = null;
             }
 
             private void FillInDictionary(Dictionary<int, T[]> dic, uint i, int step, long en, ref int counter) {
@@ -108,15 +109,15 @@ namespace Sortings {
             private async Task FillResultingArray(List<Task> listOfTasks, Dictionary<int, T[]> dic) {
 
                 await Task.WhenAll(listOfTasks).ContinueWith((prev) => {
-                    foreach (var key in dic.Keys)
-                    {
-                        if (dic[key] != null)
-                        {
-                            for (int i = 0; i < arr.Length; i++)
-                            {
+
+                    foreach (var key in dic.Keys) {
+
+                        if (dic[key] != null) {
+
+                            for (int i = 0; i < arr.Length; i++) {
                                 arr[i] = dic[key][i]; // перекидывание результата в исходный массив
                             }
-                            dic = null;
+                            
                             break;
                         }
                     }
