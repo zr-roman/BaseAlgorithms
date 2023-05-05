@@ -3,7 +3,17 @@ namespace GraphsCs {
 
     public static partial class Lib {
         
-        public static void DFS( List<Vertex> vertices, bool[,] adjMatrix ) {
+        private static LinkedList<Vertex> list = new LinkedList<Vertex>();
+
+        /// <summary>
+        /// Depth first search (поиск в глубину)
+        /// </summary>
+        /// <param name="vertices">List of vertices (список вершин графа)</param>
+        /// <param name="adjMatrix">Adjacency matrix (матрица смежности)</param>
+        /// <returns> 
+        /// Topologically sorted vertices (топологически отсортиррованные вершины графа)
+        /// </returns> 
+        public static LinkedList<Vertex> DFS( List<Vertex> vertices, bool[,] adjMatrix ) {
 
             var parent = new Dictionary<Vertex, Vertex>();
 
@@ -11,8 +21,10 @@ namespace GraphsCs {
                 if ( !parent.ContainsKey( v ) ) {
                     parent.Add( v, null! );
                     DFS_Visit( v, vertices, adjMatrix, parent );
+                    list.AddFirst( v );
                 }
             }
+            return list;
         }
 
         private static void DFS_Visit( Vertex s, List<Vertex> vertices, bool[,] adjMatrix, Dictionary<Vertex, Vertex> parent ) {
@@ -30,6 +42,7 @@ namespace GraphsCs {
                     if ( !parent.ContainsKey( v ) ) {
                         parent.Add( v, s );
                         DFS_Visit( v, vertices, adjMatrix, parent );
+                        list.AddFirst(v);
                     }
                 }
             }
