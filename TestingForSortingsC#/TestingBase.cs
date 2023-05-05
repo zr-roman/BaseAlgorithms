@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Sortings;
 
 namespace Testing {
 
@@ -7,50 +9,35 @@ namespace Testing {
         
         protected TestingBase() {
             rnd = new Random();
-            N = (byte)rnd.Next( 10, 51 );
+            arr_Size = rnd.Next(1001, 2001);
             GenerateNewArray();
         }
 
         protected int[] arr;
-        protected byte N;
+        protected int arr_Size;
         protected Random rnd;
-
-        protected void AssertionAsc() {
-            for ( int i = 0; i < arr.Length - 1; i++ ) {
-                Assert.IsTrue( arr[ i ] <= arr[ i + 1] );
+      
+        protected void Assertion(Order order) {
+            if (order == Order.ASC) {
+                for ( int i = 0; i < arr.Length - 1; i++ ) {
+                    Assert.IsTrue( arr[ i ] <= arr[ i + 1] );
+                }
             }
-        }
-
-        protected void AssertionDesc() {
-            for ( int i = 0; i < arr.Length - 1; i++ ) {
-                Assert.IsTrue( arr[ i ] >= arr[ i + 1 ] );
+            if (order == Order.DESC) {
+                for (int i = 0; i < arr.Length - 1; i++) {
+                    Assert.IsTrue(arr[i] >= arr[i + 1]);
+                }
             }
         }
 
         protected void GenerateNewArray() {
             var min = int.MinValue + 1;
-            arr = new int[] {
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue ),
-                    rnd.Next( min, int.MaxValue )
-            };
+            var list = new List<int>();
+            for (int i = 0; i < arr_Size; i++)
+            {
+                list.Add( rnd.Next(min, int.MaxValue) );
+            }
+            arr =  list.ToArray();
         }
     }
 }

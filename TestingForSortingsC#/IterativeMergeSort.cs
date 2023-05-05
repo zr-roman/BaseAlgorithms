@@ -1,19 +1,20 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sortings;
 
-namespace Testing {
+namespace Testing
+{
 
     [TestClass]
-    public class Heapsort: TestingBase {
-
+    public class IterativeMergeSort : TestingBase
+    {
         [TestMethod]
         public void TestAsc()
         {
             while (--arr_Size > 0)
             {
-                GenerateNewArray();
                 var order = Order.ASC;
-                Lib.Heapsort( arr, order );
+                GenerateNewArray();
+                Lib.IterativeMergeSort(arr, order);
                 Assertion(order);
             }
         }
@@ -23,11 +24,12 @@ namespace Testing {
         {
             while (--arr_Size > 0)
             {
-                GenerateNewArray();
                 var order = Order.DESC;
-                Lib.Heapsort( arr, order );
+                GenerateNewArray();
+                Lib.IterativeMergeSort(arr, order);
                 Assertion(order);
             }
         }
+
     }
 }

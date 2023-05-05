@@ -8,42 +8,46 @@ namespace Testing {
 
         [TestMethod]
         public void TestPivotFirst() {
-            while ( N-- > 0 ) {
+            while ( --arr_Size > 0 ) {
                 GenerateNewArray();
-                Lib.QuickSort( arr, Order.ASC, Pivot.FIRST );
-                AssertionAsc();
+                var order = Order.ASC;
+                Lib.QuickSort( arr, order, Pivot.FIRST );
+                Assertion(order);
             }
         }
 
         [TestMethod]
         public void TestPivotLast()
         {
-            while (N--> 0) {
+            while (--arr_Size > 0) {
                 GenerateNewArray();
-                Lib.QuickSort(arr, Order.ASC, Pivot.LAST);
-                AssertionAsc();
+                var order = Order.ASC;
+                Lib.QuickSort(arr, order, Pivot.LAST);
+                Assertion(order);
             }
         }
 
         [TestMethod]
         public void TestPivotRandom()
         {
-            while (N-- > 0)
+            while (--arr_Size > 0)
             {
                 GenerateNewArray();
-                Lib.QuickSort(arr, Order.ASC, Pivot.RANDOM);
-                AssertionAsc();
+                var order = Order.ASC;
+                Lib.QuickSort(arr, order, Pivot.RANDOM);
+                Assertion(order);
             }
         }
 
         [TestMethod]
         public void TestPivotDesc()
         {
-            while (N-- > 0)
+            while (--arr_Size > 0)
             {
                 GenerateNewArray();
-                Lib.QuickSort(arr, Order.DESC, Pivot.FIRST);
-                AssertionDesc();
+                var order = Order.DESC;
+                Lib.QuickSort(arr, order, Pivot.FIRST);
+                Assertion(order);
             }
         }
 

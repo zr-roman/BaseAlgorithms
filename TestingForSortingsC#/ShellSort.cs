@@ -9,22 +9,24 @@ namespace Testing {
          [TestMethod]
         public void TestAsc()
         {
-            while (N-- > 0)
+            while (--arr_Size > 0)
             {
                 GenerateNewArray();
-                Lib.ShellSort(arr, Order.ASC);
-                AssertionAsc();
+                var order = Order.ASC;
+                Lib.ShellSort(arr, order);
+                Assertion(order);
             }
         }
 
         [TestMethod]
         public void TestDesc()
         {
-            while (N-- > 0)
+            while (--arr_Size > 0)
             {
                 GenerateNewArray();
-                Lib.ShellSort(arr, Order.DESC);
-                AssertionDesc();
+                var order = Order.DESC;
+                Lib.ShellSort(arr, order);
+                Assertion(order);
             }
         }
 
