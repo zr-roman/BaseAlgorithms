@@ -63,9 +63,7 @@ namespace Sortings {
                     step += 2;
                 }
 
-                var listOfTasks = new List<Task>();
-
-                MergeAllParts(listOfTasks, dic).GetAwaiter().GetResult();
+                MergeAllParts(out var listOfTasks, dic);
 
                 FillResultingArray(listOfTasks, dic).GetAwaiter().GetResult();
 
@@ -90,8 +88,10 @@ namespace Sortings {
                 }
             }
 
-            private async Task MergeAllParts(List<Task> listOfTasks, Dictionary<int, T[]> dic) { 
-                 
+            private void MergeAllParts(out List<Task> listOfTasks, Dictionary<int, T[]> dic) { 
+                
+                listOfTasks = new List<Task>();
+
                 int step = 2;
 
                 while (dic[0].Length != arr.Length ) { 
@@ -101,7 +101,7 @@ namespace Sortings {
                         
                         listOfTasks.Add( Task.Factory.StartNew(() => { Merge2(dic, j, j + step / 2); }) );
                     }
-                    await Task.WhenAll(listOfTasks).ConfigureAwait(false);
+                    Task.WhenAll(listOfTasks).ConfigureAwait(false).GetAwaiter().GetResult();
                     step *= 2;
                 }
             }
