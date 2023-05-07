@@ -81,5 +81,45 @@ namespace TestingForGraphsCs
             Assert.IsTrue(res.Contains("3|0"));
         }
 
+        [TestMethod]
+        public void Test3() {
+
+            var vertexSFO = new Vertex("SFO", Guid.NewGuid().ToString(), 0);
+            var vertexLAX = new Vertex("LAX", Guid.NewGuid().ToString(), 1);
+            var vertexDFW = new Vertex("DFW", Guid.NewGuid().ToString(), 2);
+            var vertexORD = new Vertex("ORD", Guid.NewGuid().ToString(), 3);
+            var vertexMIA = new Vertex("MIA", Guid.NewGuid().ToString(), 4);
+            var vertexBWI = new Vertex("BWI", Guid.NewGuid().ToString(), 5);
+            var vertexJFK = new Vertex("JFK", Guid.NewGuid().ToString(), 6);
+            var vertexPVD = new Vertex("PVD", Guid.NewGuid().ToString(), 7);
+            var vertexBOS = new Vertex("BOS", Guid.NewGuid().ToString(), 8);
+
+            var list = new List<Vertex> { vertexSFO, vertexLAX, vertexDFW, vertexORD, vertexMIA, vertexBWI, vertexJFK, vertexPVD, vertexBOS };
+
+            int?[,] adj_Matrix = new int?[9, 9] { 
+                         // SFO  LAX  DFW  ORD  MIA  BWI  JFK  PVD  BOS
+                /* SFO*/  { null,337, 1464,1846,null,null,null,null,2704 },
+                /* LAX*/  { 337, null,1235,null,2342,null,null,null,null },
+                /* DFW*/  {1464, 1235,null,802, 1121,null,1391,null,null },
+                /* ORD*/  { 1846,null,802, null,null,621,740, 849, 867 },
+                /* MIA*/  { null,2342,1121,null,null,946, 1090,null,1258 },
+                /* BWI*/  { null,null,null,621,946, null, 184,null, null },
+                /* JFK*/  { null,null,1391,740,1090,184, null,144, 187 },
+                /* PVD*/  { null,null,null, 849,null,null,144,null,null },
+                /* BOS*/  { 2704,null,null,867, 1258,null,187,null, null }
+            };
+
+            var res = Lib.Boruvka_MST(list, adj_Matrix);
+            Assert.AreEqual(8, res.Count);
+            Assert.IsTrue(res.Contains("1|0"));
+            Assert.IsTrue(res.Contains("3|2"));
+            Assert.IsTrue(res.Contains("5|3"));
+            Assert.IsTrue(res.Contains("5|4"));
+            Assert.IsTrue(res.Contains("6|5"));
+            Assert.IsTrue(res.Contains("7|6"));
+            Assert.IsTrue(res.Contains("6|8"));
+            Assert.IsTrue(res.Contains("2|1"));
+        }
+
     }
 }
