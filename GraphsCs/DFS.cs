@@ -11,7 +11,7 @@ namespace GraphsCs {
         /// <param name="vertices">List of vertices (список вершин графа)</param>
         /// <param name="adjMatrix">Adjacency matrix (матрица смежности)</param>
         /// <returns> 
-        /// Topologically sorted vertices (топологически отсортиррованные вершины графа)
+        /// Topologically sorted vertices (топологически отсортированные вершины графа)
         /// </returns> 
         public static LinkedList<Vertex> DFS( List<Vertex> vertices, bool[,] adjMatrix ) {
 
