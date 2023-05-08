@@ -70,11 +70,10 @@ public static partial class Lib {
             }
 
             // compaction of the graph: detecting cheapest edges between components
-            
-            Task.Factory.StartNew(() => {
-                
-                var tasksList = new List<Task>();
+            var tasksList = new List<Task>();
 
+            Task.Factory.StartNew(() => {
+                                
                 Parallel.ForEach(components, component => {
 
                     var collectionOfVertices = new HashSet<Vertex>();
@@ -97,8 +96,11 @@ public static partial class Lib {
                             _ = GetCheapestEdge(collectionOfVertices, adjMatrix, dic);
                         }, new CancellationTokenSource().Token, TaskCreationOptions.AttachedToParent, TaskScheduler.Current));
                 });
-                Task.WaitAll(tasksList.Where(x => x != null).ToArray());
-            }).GetAwaiter().GetResult();
+            })
+            .ContinueWith((prev) => { Task.WaitAll(tasksList.Where(x => x != null).ToArray()); })
+            .ConfigureAwait(false)
+            .GetAwaiter()
+            .GetResult();
         }
     }
 
