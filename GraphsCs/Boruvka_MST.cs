@@ -2,9 +2,7 @@
 namespace GraphsCs;
 
 public static partial class Lib {
-
-    private static object lockObject = new object();
-
+        
     /// <summary>
     /// Boruvka MST algorithm
     /// </summary>
@@ -100,8 +98,10 @@ public static partial class Lib {
     /// <param name="dic">Dictionary of cheapest edges</param>
     /// <returns></returns>
     private static (int, int)? GetCheapestEdge(ICollection<Vertex> vertices, int?[,] adjMatrix, Dictionary<string, int> dic) {
-    
-        lock (lockObject) {
+
+        try {
+
+            spinLock.Enter(); // threads synchronization
 
             var weight = int.MaxValue;
             var adj_id_u = -1;
@@ -140,6 +140,9 @@ public static partial class Lib {
                 dic.Add( k, weight );
             }
             return (adj_id_u, adj_id_v);
+        }
+        finally {
+            spinLock.Exit();
         }
     }
 
@@ -184,4 +187,22 @@ public static partial class Lib {
 
         return ( adj_id_u, adj_id_v );
     }
+
+    private struct SimpleSpinLock {
+
+        private int resourseInUse;
+
+        public void Enter() {
+            while (true) {
+                if (Interlocked.Exchange(ref resourseInUse, 1) == 0) {
+                    return;
+                }
+            }
+        }
+        public void Exit() {
+            Volatile.Write(ref resourseInUse, 0);
+        }
+    }
+
+    private static SimpleSpinLock spinLock = new();
 }

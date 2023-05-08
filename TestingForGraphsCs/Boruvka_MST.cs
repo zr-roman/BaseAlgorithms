@@ -392,10 +392,53 @@ namespace TestingForGraphsCs
             }
         }
 
+        [TestMethod]
+        public void Test8() {
+
+            var vertexA = new Vertex("A", Guid.NewGuid().ToString(), 0);
+            var vertexB = new Vertex("B", Guid.NewGuid().ToString(), 1);
+            var vertexC = new Vertex("C", Guid.NewGuid().ToString(), 2);
+            var vertexD = new Vertex("D", Guid.NewGuid().ToString(), 3);
+            var vertexE = new Vertex("E", Guid.NewGuid().ToString(), 4);
+            var vertexF = new Vertex("F", Guid.NewGuid().ToString(), 5);
+            var vertexG = new Vertex("G", Guid.NewGuid().ToString(), 6);
+            var vertexH = new Vertex("H", Guid.NewGuid().ToString(), 7);            
+            var vertexI = new Vertex("H", Guid.NewGuid().ToString(), 8);
+
+            var list = new List<Vertex> { vertexA, vertexB, vertexC, vertexD, vertexE, vertexF, vertexG, vertexH, vertexI };
+
+            int?[,] adj_Matrix = new int?[9, 9] { 
+                        // A    B    C    D     E    F    G     H    I
+                /* A*/  { null, 2, null, null, null, 5,   4,  null, null },
+                /* B*/  { 2,   null, 2, null,  null, 4,  null,null, null },
+                /* C*/  { null, 2, null, 3,    null, 4,  null,null, null },
+                /* D*/  { null, null, 3, null,  2,   5,  null,null, null },
+                /* E*/  { null, null, null,2, null,  3,  null,null,  4 },
+                /* F*/  { 5,    4,   4,   5,    3,  null, 3,   5,    5 },
+                /* G*/  { 4,  null, null, null, null,3,  null, 3,  null },
+                /* H*/  { null,null,null,null,null, 5, 3,  null, 2 },
+                /* I*/  { null, null,null,null,4,   5,null, 2,  null }
+            };
+
+            for (int i = 0; i < 1000; i++)
+            {
+                var res = Lib.Boruvka_MST(list, adj_Matrix);
+
+                Assert.AreEqual(list.Count - 1, res.Count);
+                Assert.IsTrue(res.Contains("1|0") || res.Contains("0|1"));
+                Assert.IsTrue(res.Contains("1|2") || res.Contains("2|1"));
+                Assert.IsTrue(res.Contains("4|3") || res.Contains("3|4"));
+                Assert.IsTrue(res.Contains("4|5") || res.Contains("5|4"));
+                Assert.IsTrue(res.Contains("5|6") || res.Contains("6|5"));
+                Assert.IsTrue(res.Contains("8|7") || res.Contains("7|8"));
+                Assert.IsTrue(res.Contains("3|2") || res.Contains("2|3"));
+                Assert.IsTrue(res.Contains("6|7") || res.Contains("7|6"));
+            }
+        }
+
         private void setMatrix(int?[,] adj_Matrix, int i, int j, int w) {
             adj_Matrix[i, j] = w;
             adj_Matrix[j, i] = w;
         }
-        
     }
 }
