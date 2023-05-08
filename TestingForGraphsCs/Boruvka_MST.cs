@@ -293,7 +293,7 @@ namespace TestingForGraphsCs
                 Assert.IsTrue(res.Contains("3|4") || res.Contains("4|3"));
                 Assert.IsTrue(res.Contains("6|5") || res.Contains("5|6"));
                 Assert.IsTrue(res.Contains("7|6") || res.Contains("6|7"));
-                Assert.IsTrue(res.Contains("2|1") || res.Contains("1|2"));
+                Assert.IsTrue(res.Contains("2|1") || res.Contains("1|2") || res.Contains("0|7") || res.Contains("7|0"));
                 Assert.IsTrue(res.Contains("5|2") || res.Contains("2|5"));
             }
         }

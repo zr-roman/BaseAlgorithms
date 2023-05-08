@@ -17,6 +17,7 @@ public static partial class Lib {
             _ = GetCheapestEdge(vertex, adjMatrix, dic);
         }
    
+        // detecting components of the graph
         while (true) {
 
             var set = new HashSet<int>();
@@ -68,24 +69,32 @@ public static partial class Lib {
                 return dic.Keys.ToArray();
             }
 
+            // compaction of the graph: detecting cheapest edges between components
             var tasksList = new List<Task>();
 
-            foreach (var component in components) {
-                
+            Parallel.ForEach(components, component => {
+
                 var collectionOfVertices = new HashSet<Vertex>();
 
-                foreach (var edge in component) {
-                    var vert1 = vertices.First(x => x.GetAdjId().ToString() == edge.Substring(0, edge.IndexOf('|')));
-                    var vert2 = vertices.First(x => x.GetAdjId().ToString() == edge.Substring(edge.IndexOf('|') + 1));
-                    collectionOfVertices.Add(vert1);
-                    collectionOfVertices.Add(vert2);
-                }
+                Parallel.ForEach(component, edge => {
+
+                    var verts = vertices.FindAll(x => x.GetAdjId().ToString() == edge.Substring(0, edge.IndexOf('|'))
+                                                        ||
+                                                        x.GetAdjId().ToString() == edge.Substring(edge.IndexOf('|') + 1));
+
+                    Parallel.ForEach(verts, v => {
+                        spinLock.Enter();
+                        collectionOfVertices.Add(v);
+                        spinLock.Exit();
+                    });
+                });
 
                 tasksList.Add(
                     Task.Factory.StartNew(() => {
                         _ = GetCheapestEdge(collectionOfVertices, adjMatrix, dic);
                     }));
-            }
+            });
+
             Task.WaitAll(tasksList.ToArray());
         }
     }
