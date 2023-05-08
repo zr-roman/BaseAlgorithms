@@ -92,6 +92,13 @@ public static partial class Lib {
         }
     }
 
+    /// <summary>
+    /// Get cheapest edge for a component
+    /// </summary>
+    /// <param name="vertices">Component</param>
+    /// <param name="adjMatrix">Adjacency matrix</param>
+    /// <param name="dic">Dictionary of cheapest edges</param>
+    /// <returns></returns>
     private static (int, int)? GetCheapestEdge(ICollection<Vertex> vertices, int?[,] adjMatrix, Dictionary<string, int> dic) {
     
         lock (lockObject) {
@@ -136,6 +143,13 @@ public static partial class Lib {
         }
     }
 
+    /// <summary>
+    /// Get cheapest edge for a vertex
+    /// </summary>
+    /// <param name="vertex">Vertex</param>
+    /// <param name="adjMatrix">Adjacency matrix</param>
+    /// <param name="dic">Dictionary of cheapest edges</param>
+    /// <returns>Cheapest edge</returns>
     private static (int, int)? GetCheapestEdge(Vertex vertex, int?[,] adjMatrix, Dictionary<string, int> dic)
     {
         var weight = int.MaxValue;
