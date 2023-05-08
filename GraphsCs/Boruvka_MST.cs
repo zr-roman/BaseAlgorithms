@@ -34,7 +34,7 @@ public static partial class Lib {
 
                     var new_frontier = new HashSet<int>();
 
-                    foreach (var item in frontier) {
+                    foreach (var item in new List<int> ( frontier )) {
 
                         var res = dic.Keys.Where(x => !exceptList.Contains(x) && (x.Substring(0, x.IndexOf('|')) == item.ToString() || x.Substring(x.IndexOf('|') + 1) == item.ToString())).ToList();
 
@@ -70,32 +70,35 @@ public static partial class Lib {
             }
 
             // compaction of the graph: detecting cheapest edges between components
-            var tasksList = new List<Task>();
+            
+            Task.Factory.StartNew(() => {
+                
+                var tasksList = new List<Task>();
 
-            Parallel.ForEach(components, component => {
+                Parallel.ForEach(components, component => {
 
-                var collectionOfVertices = new HashSet<Vertex>();
+                    var collectionOfVertices = new HashSet<Vertex>();
 
-                Parallel.ForEach(component, edge => {
+                    Parallel.ForEach(component, edge => {
 
-                    var verts = vertices.FindAll(x => x.GetAdjId().ToString() == edge.Substring(0, edge.IndexOf('|'))
-                                                        ||
-                                                        x.GetAdjId().ToString() == edge.Substring(edge.IndexOf('|') + 1));
+                        var verts = vertices.FindAll(x => x.GetAdjId().ToString() == edge.Substring(0, edge.IndexOf('|'))
+                                                            ||
+                                                            x.GetAdjId().ToString() == edge.Substring(edge.IndexOf('|') + 1));
 
-                    Parallel.ForEach(verts, v => {
-                        spinLock.Enter();
-                        collectionOfVertices.Add(v);
-                        spinLock.Exit();
+                        Parallel.ForEach(verts, v => {
+                            spinLock.Enter();
+                            collectionOfVertices.Add(v);
+                            spinLock.Exit();
+                        });
                     });
+
+                    tasksList.Add(
+                        Task.Factory.StartNew(() => {
+                            _ = GetCheapestEdge(collectionOfVertices, adjMatrix, dic);
+                        }, new CancellationTokenSource().Token, TaskCreationOptions.AttachedToParent, TaskScheduler.Current));
                 });
-
-                tasksList.Add(
-                    Task.Factory.StartNew(() => {
-                        _ = GetCheapestEdge(collectionOfVertices, adjMatrix, dic);
-                    }));
-            });
-
-            Task.WaitAll(tasksList.ToArray());
+                Task.WaitAll(tasksList.Where(x => x != null).ToArray());
+            }).GetAwaiter().GetResult();
         }
     }
 
@@ -125,9 +128,8 @@ public static partial class Lib {
                     if ( i == j || adjMatrix[i, j] == null) {
                         continue;
                     }
-
-                    var t = j;
-                    if ( vertices.Where(x => x.GetAdjId() == i).Any() && vertices.Where( x => x.GetAdjId() == t ).Any() ) {
+                    
+                    if ( vertices.Where(x => x.GetAdjId() == i).Any() && vertices.Where( x => x.GetAdjId() == j ).Any() ) {
                         continue;
                     }
 

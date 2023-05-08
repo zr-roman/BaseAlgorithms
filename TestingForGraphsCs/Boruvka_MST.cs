@@ -5,6 +5,8 @@ namespace TestingForGraphsCs
     [TestClass]
     public class Boruvka_MST
     {
+        private int repeat = 10001;
+
         [TestMethod]
         public void Test1() {
 
@@ -31,7 +33,7 @@ namespace TestingForGraphsCs
                 /* H*/  { null, null, 20,null, 13,  null, 18,   null }
             };
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < repeat; i++)
             {
                 var res = Lib.Boruvka_MST(list, adj_Matrix);
 
@@ -72,7 +74,7 @@ namespace TestingForGraphsCs
                 /* H*/  { null, null,null,28, 20,  null, 27,  null }
             };
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < repeat; i++)
             {
                 var res = Lib.Boruvka_MST(list, adj_Matrix);
 
@@ -115,7 +117,7 @@ namespace TestingForGraphsCs
                 /* BOS*/  { 2704,null,null,867, 1258,null,187,null, null }
             };
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < repeat; i++)
             {
                 var res = Lib.Boruvka_MST(list, adj_Matrix);
 
@@ -282,7 +284,7 @@ namespace TestingForGraphsCs
                 /* 8*/  { null, null, 2, null, null, null,   6,  7, null }
             };
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < repeat; i++)
             {
                 var res = Lib.Boruvka_MST(list, adj_Matrix);
 
@@ -326,7 +328,7 @@ namespace TestingForGraphsCs
 
             var list = new List<Vertex> { vertexA, vertexB, vertexC, vertexD, vertexE, vertexF, vertexG, vertexH };
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < repeat; i++)
             {
                 var res = Lib.Boruvka_MST(list, adj_Matrix);
 
@@ -371,7 +373,7 @@ namespace TestingForGraphsCs
             setMatrix(adj_Matrix, 9, 11, 74);
             setMatrix(adj_Matrix, 10, 12, 129);
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < repeat; i++)
             {
                 var res = Lib.Boruvka_MST(list, adj_Matrix);
 
@@ -422,7 +424,7 @@ namespace TestingForGraphsCs
                 /* I*/  { null, null,null,null,4,   5,null, 2,  null }
             };
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < repeat; i++)
             {
                 var res = Lib.Boruvka_MST(list, adj_Matrix);
 
