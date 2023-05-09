@@ -18,6 +18,7 @@ public static partial class Lib {
         }
    
         // detecting components of the graph
+
         while (true) {
 
             var set = new HashSet<int>();
@@ -34,7 +35,7 @@ public static partial class Lib {
 
                     var new_frontier = new HashSet<int>();
 
-                    foreach (var item in new List<int> ( frontier )) {
+                    foreach (var item in frontier) {
 
                         var res = dic.Keys.Where(x => !exceptList.Contains(x) && (x.Substring(0, x.IndexOf('|')) == item.ToString() || x.Substring(x.IndexOf('|') + 1) == item.ToString())).ToList();
 
@@ -73,7 +74,7 @@ public static partial class Lib {
 
             foreach (var component in components) {
 
-                var collectionOfVertices = new HashSet<Vertex>();
+                var verticesOfComponent = new HashSet<Vertex>();
 
                 foreach (var edge in component) {
 
@@ -82,11 +83,11 @@ public static partial class Lib {
                                                           x.GetAdjId().ToString() == edge.Substring(edge.IndexOf('|') + 1));
 
                     foreach (var v in verts) {
-                        collectionOfVertices.Add(v);
+                        verticesOfComponent.Add(v);
                     }
                 }
 
-                _ = GetCheapestEdge(collectionOfVertices, adjMatrix, dic);
+                _ = GetCheapestEdge(verticesOfComponent, adjMatrix, dic);
             }
         }
         return dic.Keys.ToArray();
@@ -95,17 +96,17 @@ public static partial class Lib {
     /// <summary>
     /// Get cheapest edge for a component
     /// </summary>
-    /// <param name="vertices">Component</param>
+    /// <param name="component">Component</param>
     /// <param name="adjMatrix">Adjacency matrix</param>
     /// <param name="dic">Dictionary of cheapest edges</param>
     /// <returns></returns>
-    private static (int, int)? GetCheapestEdge(ICollection<Vertex> vertices, int?[,] adjMatrix, Dictionary<string, int> dic) {
+    private static (int, int)? GetCheapestEdge(ICollection<Vertex> component, int?[,] adjMatrix, Dictionary<string, int> dic) {
         
         var weight = int.MaxValue;
         var adj_id_u = -1;
         var adj_id_v = -1;
 
-        foreach (var vertex in vertices) {
+        foreach (var vertex in component) {
             
             var i = vertex.GetAdjId();
             
@@ -115,7 +116,7 @@ public static partial class Lib {
                     continue;
                 }
                     
-                if ( vertices.Where(x => x.GetAdjId() == i).Any() && vertices.Where( x => x.GetAdjId() == j ).Any() ) {
+                if (component.Where(x => x.GetAdjId() == i).Any() && component.Where( x => x.GetAdjId() == j ).Any() ) {
                     continue;
                 }
 
