@@ -5,7 +5,7 @@ namespace TestingForGraphsCs
     [TestClass]
     public class Boruvka_MST
     {
-        private int repeat = 10001;
+        private int repeat = 3001;
 
         [TestMethod]
         public void Test1() {

@@ -66,42 +66,30 @@ public static partial class Lib {
             }
 
             if (components.Count == 1 && components[0].Count == vertices.Count - 1) {
-                return dic.Keys.ToArray();
+                break;
             }
 
             // compaction of the graph: detecting cheapest edges between components
-            var tasksList = new List<Task>();
 
-            Task.Factory.StartNew(() => {
-                                
-                Parallel.ForEach(components, component => {
+            foreach (var component in components) {
 
-                    var collectionOfVertices = new HashSet<Vertex>();
+                var collectionOfVertices = new HashSet<Vertex>();
 
-                    Parallel.ForEach(component, edge => {
+                foreach (var edge in component) {
 
                         var verts = vertices.FindAll(x => x.GetAdjId().ToString() == edge.Substring(0, edge.IndexOf('|'))
-                                                            ||
-                                                            x.GetAdjId().ToString() == edge.Substring(edge.IndexOf('|') + 1));
+                                                          ||
+                                                          x.GetAdjId().ToString() == edge.Substring(edge.IndexOf('|') + 1));
 
-                        Parallel.ForEach(verts, v => {
-                            spinLock.Enter();
-                            collectionOfVertices.Add(v);
-                            spinLock.Exit();
-                        });
-                    });
+                    foreach (var v in verts) {
+                        collectionOfVertices.Add(v);
+                    }
+                }
 
-                    tasksList.Add(
-                        Task.Factory.StartNew(() => {
-                            _ = GetCheapestEdge(collectionOfVertices, adjMatrix, dic);
-                        }, new CancellationTokenSource().Token, TaskCreationOptions.AttachedToParent, TaskScheduler.Current));
-                });
-            })
-            .ContinueWith((prev) => { Task.WaitAll(tasksList.Where(x => x != null).ToArray()); })
-            .ConfigureAwait(false)
-            .GetAwaiter()
-            .GetResult();
+                _ = GetCheapestEdge(collectionOfVertices, adjMatrix, dic);
+            }
         }
+        return dic.Keys.ToArray();
     }
 
     /// <summary>
@@ -112,51 +100,44 @@ public static partial class Lib {
     /// <param name="dic">Dictionary of cheapest edges</param>
     /// <returns></returns>
     private static (int, int)? GetCheapestEdge(ICollection<Vertex> vertices, int?[,] adjMatrix, Dictionary<string, int> dic) {
+        
+        var weight = int.MaxValue;
+        var adj_id_u = -1;
+        var adj_id_v = -1;
 
-        try {
-
-            spinLock.Enter(); // threads synchronization
-
-            var weight = int.MaxValue;
-            var adj_id_u = -1;
-            var adj_id_v = -1;
-
-            foreach (var vertex in vertices) {
+        foreach (var vertex in vertices) {
             
-                var i = vertex.GetAdjId();
+            var i = vertex.GetAdjId();
             
-                for (int j = 0; j < adjMatrix.GetLength(1); j++) {
+            for (int j = 0; j < adjMatrix.GetLength(1); j++) {
            
-                    if ( i == j || adjMatrix[i, j] == null) {
-                        continue;
-                    }
+                if ( i == j || adjMatrix[i, j] == null) {
+                    continue;
+                }
                     
-                    if ( vertices.Where(x => x.GetAdjId() == i).Any() && vertices.Where( x => x.GetAdjId() == j ).Any() ) {
-                        continue;
-                    }
+                if ( vertices.Where(x => x.GetAdjId() == i).Any() && vertices.Where( x => x.GetAdjId() == j ).Any() ) {
+                    continue;
+                }
 
-                    if (adjMatrix[i, j] < weight) {
-                        weight = adjMatrix[i, j]!.Value;
-                        adj_id_v = j;
-                        adj_id_u = i;
-                    }
+                if (adjMatrix[i, j] < weight) {
+                    weight = adjMatrix[i, j]!.Value;
+                    adj_id_v = j;
+                    adj_id_u = i;
                 }
             }
+        }
 
-            if (adjMatrix[ adj_id_v, adj_id_u ] == null) {
-                return null;
-            }
+        if (adjMatrix[ adj_id_v, adj_id_u ] == null) {
+            return null;
+        }
         
-            var k = adj_id_v + "|" + adj_id_u;
-            var kReverse = adj_id_u + "|" + adj_id_v;
-            if ( !dic.ContainsKey( k ) && !dic.ContainsKey( kReverse ) ) {
-                dic.Add( k, weight );
-            }
-            return (adj_id_u, adj_id_v);
+        var k = adj_id_v + "|" + adj_id_u;
+        var kReverse = adj_id_u + "|" + adj_id_v;
+        if ( !dic.ContainsKey( k ) && !dic.ContainsKey( kReverse ) ) {
+            dic.Add( k, weight );
         }
-        finally {
-            spinLock.Exit();
-        }
+
+        return (adj_id_u, adj_id_v);
     }
 
     /// <summary>
@@ -200,22 +181,4 @@ public static partial class Lib {
 
         return ( adj_id_u, adj_id_v );
     }
-
-    private struct SimpleSpinLock {
-
-        private int resourseInUse;
-
-        public void Enter() {
-            while (true) {
-                if (Interlocked.Exchange(ref resourseInUse, 1) == 0) {
-                    return;
-                }
-            }
-        }
-        public void Exit() {
-            Volatile.Write(ref resourseInUse, 0);
-        }
-    }
-
-    private static SimpleSpinLock spinLock = new();
 }
