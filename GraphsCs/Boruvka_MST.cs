@@ -11,86 +11,99 @@ public static partial class Lib {
     /// <returns>List of edges of MST in format "u|v"</returns>
     public static ICollection<string> Boruvka_MST(List<Vertex> vertices, int?[,] adjMatrix) {
 
-        var dic = new Dictionary<string, int>();
+        var dicMSTedges = new Dictionary<string, int>();
+        
+        // 1. Detecting the cheapest edge for each vertex of the graph
 
         foreach (var vertex in vertices) {
-            _ = GetCheapestEdge(vertex, adjMatrix, dic);
+            _ = GetCheapestEdge(vertex, adjMatrix, dicMSTedges);
         }
-   
-        // detecting components of the graph
 
         while (true) {
 
-            var set = new HashSet<int>();
-            var exceptList = new HashSet<string>();
-            var components = new List<HashSet<string>>();
+            // 2. Detecting components of the graph
 
-            while (set.Count != vertices.Count) {
-
-                var component = new HashSet<string>();
-                var seed = dic.Keys.First(x => !exceptList.Contains(x)).Split('|');
-                var frontier = new HashSet<int>() { int.Parse(seed[0]), int.Parse(seed[1]) };
-                
-                while (frontier.Any()) {
-
-                    var new_frontier = new HashSet<int>();
-
-                    foreach (var item in frontier) {
-
-                        var res = dic.Keys.Where(x => !exceptList.Contains(x) && (x.Substring(0, x.IndexOf('|')) == item.ToString() || x.Substring(x.IndexOf('|') + 1) == item.ToString())).ToList();
-
-                        foreach (var key in res) {
-
-                            exceptList.Add(key);
-
-                            var arr = key.Split('|');
-                            var u = int.Parse(arr[0]);
-                            var v = int.Parse(arr[1]);
-
-                            component.Add(key);
-
-                            if (!frontier.Contains(u) && !set.Contains(u)) {
-                                new_frontier.Add(u);
-                            }
-
-                            if (!frontier.Contains(v) && !set.Contains(v)) {
-                                new_frontier.Add(v);
-                            }
-
-                            set.Add(u);
-                            set.Add(v);
-                        }
-                    }
-                    frontier = new_frontier;
-                }
-                components.Add(component);
-            }
+            var components = GetComponentsOfTheGraph(vertices, dicMSTedges);
 
             if (components.Count == 1 && components[0].Count == vertices.Count - 1) {
                 break;
             }
 
-            // compaction of the graph: detecting cheapest edges between components
+            // 3. Detecting cheapest edges between components of the graph
 
-            foreach (var component in components) {
+            SetCheapestEdgesBetweenComponentsOfTheGraph(components, vertices, adjMatrix, dicMSTedges);
+        }
+        return dicMSTedges.Keys.ToArray();
+    }
 
-                var verticesOfComponent = new HashSet<Vertex>();
+    private static void SetCheapestEdgesBetweenComponentsOfTheGraph(List<HashSet<string>> components, List<Vertex> vertices, int?[,] adjMatrix, Dictionary<string, int> dicMSTedges) {
 
-                foreach (var edge in component) {
+        foreach (var component in components) {
 
-                        var verts = vertices.FindAll(x => x.GetAdjId().ToString() == edge.Substring(0, edge.IndexOf('|'))
-                                                          ||
-                                                          x.GetAdjId().ToString() == edge.Substring(edge.IndexOf('|') + 1));
+            var verticesOfComponent = new HashSet<Vertex>();
 
-                    foreach (var v in verts) {
-                        verticesOfComponent.Add(v);
+            foreach (var edge in component) {
+
+                var adjId1 = int.Parse(edge.Substring(0, edge.IndexOf('|')));
+                var adjId2 = int.Parse(edge.Substring(edge.IndexOf('|') + 1));
+
+                var verts = vertices.FindAll(x => x.GetAdjId() == adjId1 || x.GetAdjId() == adjId2);
+
+                foreach (var v in verts) {
+                    verticesOfComponent.Add(v);
+                }
+            }
+            _ = GetCheapestEdge(verticesOfComponent, adjMatrix, dicMSTedges);
+        }
+    }
+
+    private static List<HashSet<string>> GetComponentsOfTheGraph(List<Vertex> vertices, Dictionary<string, int> dicMSTedges) { 
+
+        var set = new HashSet<int>();
+        var exceptList = new HashSet<string>();
+        var components = new List<HashSet<string>>();
+
+        while (set.Count != vertices.Count) {
+
+            var component = new HashSet<string>();
+            var seed = dicMSTedges.Keys.First(x => !exceptList.Contains(x)).Split('|');
+            var frontier = new HashSet<int>() { int.Parse(seed[0]), int.Parse(seed[1]) };
+                
+            while (frontier.Any()) {
+
+                var new_frontier = new HashSet<int>();
+
+                foreach (var vertex in frontier) {
+
+                    var edges = dicMSTedges.Keys.Where(x => !exceptList.Contains(x) && (x.Substring(0, x.IndexOf('|')) == vertex.ToString() || x.Substring(x.IndexOf('|') + 1) == vertex.ToString())).ToList();
+
+                    foreach (var edge in edges) {
+
+                        exceptList.Add(edge);
+
+                        var arr = edge.Split('|');
+                        var u = int.Parse(arr[0]);
+                        var v = int.Parse(arr[1]);
+
+                        component.Add(edge);
+
+                        if (!frontier.Contains(u) && !set.Contains(u)) {
+                            new_frontier.Add(u);
+                        }
+
+                        if (!frontier.Contains(v) && !set.Contains(v)) {
+                            new_frontier.Add(v);
+                        }
+
+                        set.Add(u);
+                        set.Add(v);
                     }
                 }
-
-                _ = GetCheapestEdge(verticesOfComponent, adjMatrix, dic);
+                frontier = new_frontier;
             }
+            components.Add(component);
         }
-        return dic.Keys.ToArray();
+        return components;
     }
 
     /// <summary>
@@ -100,7 +113,7 @@ public static partial class Lib {
     /// <param name="adjMatrix">Adjacency matrix</param>
     /// <param name="dic">Dictionary of cheapest edges</param>
     /// <returns></returns>
-    private static (int, int)? GetCheapestEdge(ICollection<Vertex> component, int?[,] adjMatrix, Dictionary<string, int> dic) {
+    private static (int, int)? GetCheapestEdge(ICollection<Vertex> component, int?[,] adjMatrix, Dictionary<string, int> dicMSTedges) {
         
         var weight = int.MaxValue;
         var adj_id_u = -1;
@@ -122,8 +135,13 @@ public static partial class Lib {
 
                 if (adjMatrix[i, j] < weight) {
                     weight = adjMatrix[i, j]!.Value;
-                    adj_id_v = j;
-                    adj_id_u = i;
+                    if (i < j) {
+                        adj_id_u = i;
+                        adj_id_v = j;
+                    } else {
+                        adj_id_u = j;
+                        adj_id_v = i;
+                    }
                 }
             }
         }
@@ -132,10 +150,10 @@ public static partial class Lib {
             return null;
         }
         
-        var k = adj_id_v + "|" + adj_id_u;
-        var kReverse = adj_id_u + "|" + adj_id_v;
-        if ( !dic.ContainsKey( k ) && !dic.ContainsKey( kReverse ) ) {
-            dic.Add( k, weight );
+        var k = adj_id_u + "|" + adj_id_v;
+        var kReverse = adj_id_v + "|" + adj_id_u;
+        if ( !dicMSTedges.ContainsKey( k ) && !dicMSTedges.ContainsKey( kReverse ) ) {
+            dicMSTedges.Add( k, weight );
         }
 
         return (adj_id_u, adj_id_v);
@@ -148,7 +166,7 @@ public static partial class Lib {
     /// <param name="adjMatrix">Adjacency matrix</param>
     /// <param name="dic">Dictionary of cheapest edges</param>
     /// <returns>Cheapest edge</returns>
-    private static (int, int)? GetCheapestEdge(Vertex vertex, int?[,] adjMatrix, Dictionary<string, int> dic)
+    private static (int, int)? GetCheapestEdge(Vertex vertex, int?[,] adjMatrix, Dictionary<string, int> dicMSTedges)
     {
         var weight = int.MaxValue;
         var adj_id_u = vertex.GetAdjId();
@@ -167,17 +185,23 @@ public static partial class Lib {
 
             // to avoid cycles
             var key = adj_id_v + "|" + adj_id_u;
-            if ( dic.ContainsKey( key ) ) {
-                if ( weight >= dic[ key ] ) {
+            if (dicMSTedges.ContainsKey( key ) ) {
+                if ( weight >= dicMSTedges[ key ] ) {
                     return null;
                 }
             }
         }
 
-        var k = adj_id_v + "|" + adj_id_u;
-        var kReverse = adj_id_u + "|" + adj_id_v;
-        if (!dic.ContainsKey( k ) && !dic.ContainsKey( kReverse ) ) {
-            dic.Add( k, weight );
+        if (adj_id_u > adj_id_v) {
+            var tmp = adj_id_u;
+            adj_id_u = adj_id_v;
+            adj_id_v = tmp;
+        }
+
+        var k = adj_id_u + "|" + adj_id_v;
+        var kReverse = adj_id_v + "|" + adj_id_u;
+        if (!dicMSTedges.ContainsKey( k ) && !dicMSTedges.ContainsKey(kReverse) ) {
+            dicMSTedges.Add( k, weight );
         }
 
         return ( adj_id_u, adj_id_v );

@@ -333,7 +333,7 @@ namespace TestingForGraphsCs
                 var res = Lib.Boruvka_MST(list, adj_Matrix);
 
                 Assert.AreEqual(list.Count - 1, res.Count);
-                Assert.IsTrue(res.Contains("1|0"));
+                Assert.IsTrue(res.Contains("0|1"));
                 Assert.IsTrue(res.Contains("1|2"));
                 Assert.IsTrue(res.Contains("0|3"));
                 Assert.IsTrue(res.Contains("1|4"));
@@ -378,21 +378,21 @@ namespace TestingForGraphsCs
                 var res = Lib.Boruvka_MST(list, adj_Matrix);
 
                 Assert.AreEqual(list.Count - 1, res.Count);
-                Assert.IsTrue(res.Contains("13|0") || res.Contains("0|13"));
-                Assert.IsTrue(res.Contains("0|1") || res.Contains("1|0"));
-                Assert.IsTrue(res.Contains("3|2") || res.Contains("2|3"));
-                Assert.IsTrue(res.Contains("4|3") || res.Contains("3|4"));
-                Assert.IsTrue(res.Contains("6|5") || res.Contains("5|6"));
-                Assert.IsTrue(res.Contains("11|6") || res.Contains("6|11"));
-                Assert.IsTrue(res.Contains("6|7") || res.Contains("7|6"));
-                Assert.IsTrue(res.Contains("12|8") || res.Contains("8|12"));
-                Assert.IsTrue(res.Contains("10|9") || res.Contains("9|10"));
-                Assert.IsTrue(res.Contains("1|14") || res.Contains("14|1"));
-                Assert.IsTrue(res.Contains("1|15") || res.Contains("15|1"));
-                Assert.IsTrue(res.Contains("2|1") || res.Contains("1|2"));
-                Assert.IsTrue(res.Contains("8|4") || res.Contains("4|8"));
-                Assert.IsTrue(res.Contains("9|11") || res.Contains("11|9"));
-                Assert.IsTrue(res.Contains("9|8") || res.Contains("8|9"));
+                Assert.IsTrue( res.Contains("0|13"));
+                Assert.IsTrue(res.Contains("0|1") );
+                Assert.IsTrue( res.Contains("2|3"));
+                Assert.IsTrue( res.Contains("3|4"));
+                Assert.IsTrue( res.Contains("5|6"));
+                Assert.IsTrue(res.Contains("6|11"));
+                Assert.IsTrue(res.Contains("6|7") );
+                Assert.IsTrue( res.Contains("8|12"));
+                Assert.IsTrue(res.Contains("9|10"));
+                Assert.IsTrue(res.Contains("1|14") );
+                Assert.IsTrue(res.Contains("1|15") );
+                Assert.IsTrue( res.Contains("1|2"));
+                Assert.IsTrue( res.Contains("4|8"));
+                Assert.IsTrue(res.Contains("9|11"));
+                Assert.IsTrue(res.Contains("8|9"));
             }
         }
 
