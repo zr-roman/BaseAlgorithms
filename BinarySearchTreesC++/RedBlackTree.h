@@ -439,6 +439,7 @@ void RedBlackTree<K, V>::RBDelete( K key ) {
         } else {
             z->parent->right = nullptr;
         }
+        return;
     }
 
     auto y = z;

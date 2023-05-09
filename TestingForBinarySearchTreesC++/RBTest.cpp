@@ -197,9 +197,9 @@ namespace BinarySearchTreesTest {
             FILE* stream;
 
             auto tree = RedBlackTreeTest::GenerateRandomRedBlackTree( N );
-            int n = 500;
-            while ( n > 0 ) {
-                n--;
+            //int n = 500;
+            //while ( n > 0 ) {
+                //n--;
                 auto r = GenerateRandomNumber( -N, N );
                 
                 tree->RBDelete( r );
@@ -207,7 +207,7 @@ namespace BinarySearchTreesTest {
 
                 // 1. AllRedNodesHaveBlackChildren
                 auto arr = tree->GetAllNonLeaves();
-                for (auto node : arr) {
+                for (auto& node : arr) {
                     auto res = RedBlackTreeTest::DoesRedNodeHaveBlackChildren( node );
                     if ( !res ) {
                         freopen_s( &stream, "output.txt", "w", stdout );
@@ -216,7 +216,7 @@ namespace BinarySearchTreesTest {
                     Assert::IsTrue(res);
                 }
                 
-            }
+            //}
             
         };
 
