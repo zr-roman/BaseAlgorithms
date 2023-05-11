@@ -8,10 +8,10 @@ public static partial class Lib {
     /// </summary>
     /// <param name="vertices">List of vertices of a graph</param>
     /// <param name="adjMatrix">Adjacency matrix</param>
-    /// <returns>List of edges of MST in format "u|v"</returns>
+    /// <returns>List of edges of MST in format "u{Delimiter}v"</returns>
     public static ICollection<string> Boruvka_MST(List<Vertex> vertices, int?[,] adjMatrix) {
 
-        var dicMSTedges = new Dictionary<string, int>();
+        var dicMSTedges = new Dictionary<string, int>(); // key - edge in format u{<Delimiter}v, e.g. u|v, value - weight of the edge
         
         // 1. Detecting the cheapest edge for each vertex of the graph
 
@@ -44,10 +44,10 @@ public static partial class Lib {
 
             foreach (var edge in component) {
 
-                var adjId1 = int.Parse(edge.Substring(0, edge.IndexOf('|')));
-                var adjId2 = int.Parse(edge.Substring(edge.IndexOf('|') + 1));
+                var adjId1 = int.Parse(edge.Substring(0, edge.IndexOf(Delimiter)));
+                var adjId2 = int.Parse(edge.Substring(edge.IndexOf(Delimiter) + 1));
 
-                var verts = vertices.FindAll(x => x.GetAdjId() == adjId1 || x.GetAdjId() == adjId2);
+                var verts = vertices.FindAll(vertex => vertex.GetAdjId() == adjId1 || vertex.GetAdjId() == adjId2);
 
                 foreach (var v in verts) {
                     verticesOfComponent.Add(v);
@@ -66,7 +66,7 @@ public static partial class Lib {
         while (set.Count != vertices.Count) {
 
             var component = new HashSet<string>();
-            var seed = dicMSTedges.Keys.First(x => !exceptList.Contains(x)).Split('|');
+            var seed = dicMSTedges.Keys.First(edge => !exceptList.Contains(edge)).Split(Delimiter);
             var frontier = new HashSet<int>() { int.Parse(seed[0]), int.Parse(seed[1]) };
                 
             while (frontier.Any()) {
@@ -75,13 +75,13 @@ public static partial class Lib {
 
                 foreach (var vertex in frontier) {
 
-                    var edges = dicMSTedges.Keys.Where(x => !exceptList.Contains(x) && (x.Substring(0, x.IndexOf('|')) == vertex.ToString() || x.Substring(x.IndexOf('|') + 1) == vertex.ToString())).ToList();
+                    var edges = dicMSTedges.Keys.Where(edge => !exceptList.Contains(edge) && (edge.Substring(0, edge.IndexOf(Delimiter)) == vertex.ToString() || edge.Substring(edge.IndexOf(Delimiter) + 1) == vertex.ToString())).ToList();
 
                     foreach (var edge in edges) {
 
                         exceptList.Add(edge);
 
-                        var arr = edge.Split('|');
+                        var arr = edge.Split(Delimiter);
                         var u = int.Parse(arr[0]);
                         var v = int.Parse(arr[1]);
 
@@ -129,10 +129,11 @@ public static partial class Lib {
                     continue;
                 }
                     
-                if (component.Where(x => x.GetAdjId() == i).Any() && component.Where( x => x.GetAdjId() == j ).Any() ) {
+                if (component.Where(vertex => vertex.GetAdjId() == i).Any() && component.Where( vertex => vertex.GetAdjId() == j ).Any() ) {
                     continue;
                 }
 
+                // smaller -> bigger
                 if (adjMatrix[i, j] < weight) {
                     weight = adjMatrix[i, j]!.Value;
                     if (i < j) {
@@ -150,8 +151,8 @@ public static partial class Lib {
             return null;
         }
         
-        var k = adj_id_u + "|" + adj_id_v;
-        var kReverse = adj_id_v + "|" + adj_id_u;
+        var k = adj_id_u + Delimiter + adj_id_v;
+        var kReverse = adj_id_v + Delimiter + adj_id_u;
         if ( !dicMSTedges.ContainsKey( k ) && !dicMSTedges.ContainsKey( kReverse ) ) {
             dicMSTedges.Add( k, weight );
         }
@@ -184,7 +185,7 @@ public static partial class Lib {
             }
 
             // to avoid cycles
-            var key = adj_id_v + "|" + adj_id_u;
+            var key = adj_id_v + Delimiter + adj_id_u;
             if (dicMSTedges.ContainsKey( key ) ) {
                 if ( weight >= dicMSTedges[ key ] ) {
                     return null;
@@ -192,18 +193,21 @@ public static partial class Lib {
             }
         }
 
+        // smaller -> bigger
         if (adj_id_u > adj_id_v) {
             var tmp = adj_id_u;
             adj_id_u = adj_id_v;
             adj_id_v = tmp;
         }
 
-        var k = adj_id_u + "|" + adj_id_v;
-        var kReverse = adj_id_v + "|" + adj_id_u;
+        var k = adj_id_u + Delimiter + adj_id_v;
+        var kReverse = adj_id_v + Delimiter + adj_id_u;
         if (!dicMSTedges.ContainsKey( k ) && !dicMSTedges.ContainsKey(kReverse) ) {
             dicMSTedges.Add( k, weight );
         }
 
         return ( adj_id_u, adj_id_v );
     }
+
+    private const string Delimiter = "|";
 }

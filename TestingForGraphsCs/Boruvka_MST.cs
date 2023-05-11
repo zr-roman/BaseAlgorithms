@@ -10,6 +10,8 @@ namespace TestingForGraphsCs
         [TestMethod]
         public void Test1() {
 
+            // https://www.youtube.com/watch?v=t92xyTDvl_c&ab_channel=LeeChiChengDaniel
+
             var vertexA = new Vertex("A", Guid.NewGuid().ToString(), 0);
             var vertexB = new Vertex("B", Guid.NewGuid().ToString(), 1);
             var vertexC = new Vertex("C", Guid.NewGuid().ToString(), 2);
