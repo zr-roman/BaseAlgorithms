@@ -11,7 +11,7 @@ public static partial class Lib {
     /// <returns>List of edges of MST in format "u{Delimiter}v"</returns>
     public static ICollection<string> Boruvka_MST(List<Vertex> vertices, int?[,] adjMatrix) {
 
-        var dicMSTedges = new Dictionary<string, int>(); // key - edge in format u{<Delimiter}v, e.g. u|v, value - weight of the edge
+        var dicMSTedges = new Dictionary<string, int>(); // key: edge in format u{<Delimiter}v, e.g. u|v, value: weight of the edge
         
         // 1. Detecting the cheapest edge for each vertex of the graph
 
