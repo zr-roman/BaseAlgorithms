@@ -3,7 +3,7 @@ namespace GraphsCs {
 
     public static partial class Lib {
         
-        public static void Dijkstra(int?[,] adjMatrix, Vertex[] vertices, Vertex s) {
+        public static ICollection<string> Dijkstra(int?[,] adjMatrix, Vertex[] vertices, Vertex s) {
 
             foreach (var v in vertices) {
                 v.d = int.MaxValue;
@@ -37,6 +37,15 @@ namespace GraphsCs {
                     }
                 }
             }
+
+            // creating the result
+            var res = new List<string>();
+            foreach (var v in vertices) {
+                if (v.pi != null) {
+                    res.Add(v.pi.GetAdjId() + Delimiter + v.GetAdjId());
+                }
+            }
+            return res;
         }
     }
 
@@ -59,7 +68,7 @@ namespace GraphsCs {
 
             var elm = minHeap[0];
             
-            if (minHeap.Length > 1) {
+            if (minHeapLastIndex > 1) {
                 SyncronizeDicAndHeap(0, minHeapLastIndex);
             }
             
@@ -74,7 +83,7 @@ namespace GraphsCs {
 
         public void DecreaseKey(T obj)
         {
-            if ( minHeap.Length == 1 ) {
+            if ( minHeapLastIndex == 0 ) {
                 return;
             }
             
@@ -139,8 +148,8 @@ namespace GraphsCs {
             arr[ j ] = tmp;
         }
 
-        private readonly T[] minHeap;
+        private T[] minHeap;
         private int minHeapLastIndex;
-        readonly Dictionary<T, int> dic;
+        private Dictionary<T, int> dic;
     }
 }
