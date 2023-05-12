@@ -21,6 +21,7 @@ void Dijkstra( const vector<vector<int>>& adj_matrix, const vector<Person_ptr>& 
     while ( Q.size() > 0 ) {
 
         auto u = Q.extract_min();
+
         for ( size_t i = 0; i < adj_matrix.at( u->GetAdjId() ).size(); i++ ) {
             
             auto w = adj_matrix.at( u->GetAdjId() ).at( i );
