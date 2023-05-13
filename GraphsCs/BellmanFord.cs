@@ -3,7 +3,7 @@ namespace GraphsCs {
 
     public static partial class Lib {
 
-        public static bool BellmanFord(int[,] adjMatrix, Vertex[] vertices, Vertex s) {
+        public static (bool, ICollection<string>) BellmanFord(int?[,] adjMatrix, Vertex[] vertices, Vertex s) {
 
             foreach (var v in vertices) {
                 v.d = int.MaxValue;
@@ -18,7 +18,7 @@ namespace GraphsCs {
 
                     for (int j = 0; j < adjMatrix.GetLength(1); j++) {
 
-                        if ( adjMatrix[ k, j ] == int.MaxValue ) {
+                        if ( adjMatrix[ k, j ] == null ) {
                             continue;
                         }
 
@@ -26,7 +26,7 @@ namespace GraphsCs {
                         var v = vertices[ j ];
                         var w = adjMatrix[ k, j ];
 
-                        Relax(u, v, w);
+                        Relax(u, v, w!.Value);
                     }
                 }
             }
@@ -35,7 +35,7 @@ namespace GraphsCs {
 
                 for ( int j = 0; j < adjMatrix.GetLength(1); j++ ) {
 
-                    if ( adjMatrix[ k, j ] == int.MaxValue ) {
+                    if ( adjMatrix[ k, j ] == null ) {
                         continue;
                     }
 
@@ -44,11 +44,21 @@ namespace GraphsCs {
                     var w = adjMatrix[ k, j ];
 
                     if ( v.d > u.d + w ) {
-                        return false; // negative cycle detected
+                        (bool, ICollection<string>) value = (false, null);
+                        return value; // negative cycle detected
                     }
                 }
             }
-            return true; // negative cycle not detected
+
+            // creating the result
+            var res = new List<string>();
+            foreach (var v in vertices) {
+                if (v.pi != null) {
+                    res.Add(v.pi.GetAdjId() + Delimiter + v.GetAdjId());
+                }
+            }
+
+            return (true, res); // negative cycle not detected
         }
 
         private static void Relax(Vertex u, Vertex v, int w) {
