@@ -54,14 +54,14 @@ namespace TestingForGraphsCs
         public void Test2()
         {
 
-            var vertexA = new Vertex("A", Guid.NewGuid().ToString(), 0);
-            var vertexB = new Vertex("B", Guid.NewGuid().ToString(), 1);
-            var vertexC = new Vertex("C", Guid.NewGuid().ToString(), 2);
-            var vertexD = new Vertex("D", Guid.NewGuid().ToString(), 3);
-            var vertexE = new Vertex("E", Guid.NewGuid().ToString(), 4);
-            var vertexF = new Vertex("F", Guid.NewGuid().ToString(), 5);
-            var vertexG = new Vertex("G", Guid.NewGuid().ToString(), 6);
-            var vertexH = new Vertex("H", Guid.NewGuid().ToString(), 7);
+            var vertexA = new Vertex("A", Guid.NewGuid().ToString(), 0, Type.Prim);
+            var vertexB = new Vertex("B", Guid.NewGuid().ToString(), 1, Type.Prim);
+            var vertexC = new Vertex("C", Guid.NewGuid().ToString(), 2, Type.Prim);
+            var vertexD = new Vertex("D", Guid.NewGuid().ToString(), 3, Type.Prim);
+            var vertexE = new Vertex("E", Guid.NewGuid().ToString(), 4, Type.Prim);
+            var vertexF = new Vertex("F", Guid.NewGuid().ToString(), 5, Type.Prim);
+            var vertexG = new Vertex("G", Guid.NewGuid().ToString(), 6, Type.Prim);
+            var vertexH = new Vertex("H", Guid.NewGuid().ToString(), 7, Type.Prim);
 
             var list = new List<Vertex> { vertexA, vertexB, vertexC, vertexD, vertexE, vertexF, vertexG, vertexH };
 
@@ -96,15 +96,15 @@ namespace TestingForGraphsCs
         public void Test3()
         {
 
-            var vertexSFO = new Vertex("SFO", Guid.NewGuid().ToString(), 0);
-            var vertexLAX = new Vertex("LAX", Guid.NewGuid().ToString(), 1);
-            var vertexDFW = new Vertex("DFW", Guid.NewGuid().ToString(), 2);
-            var vertexORD = new Vertex("ORD", Guid.NewGuid().ToString(), 3);
-            var vertexMIA = new Vertex("MIA", Guid.NewGuid().ToString(), 4);
-            var vertexBWI = new Vertex("BWI", Guid.NewGuid().ToString(), 5);
-            var vertexJFK = new Vertex("JFK", Guid.NewGuid().ToString(), 6);
-            var vertexPVD = new Vertex("PVD", Guid.NewGuid().ToString(), 7);
-            var vertexBOS = new Vertex("BOS", Guid.NewGuid().ToString(), 8);
+            var vertexSFO = new Vertex("SFO", Guid.NewGuid().ToString(), 0, Type.Prim);
+            var vertexLAX = new Vertex("LAX", Guid.NewGuid().ToString(), 1, Type.Prim);
+            var vertexDFW = new Vertex("DFW", Guid.NewGuid().ToString(), 2, Type.Prim);
+            var vertexORD = new Vertex("ORD", Guid.NewGuid().ToString(), 3, Type.Prim);
+            var vertexMIA = new Vertex("MIA", Guid.NewGuid().ToString(), 4, Type.Prim);
+            var vertexBWI = new Vertex("BWI", Guid.NewGuid().ToString(), 5, Type.Prim);
+            var vertexJFK = new Vertex("JFK", Guid.NewGuid().ToString(), 6, Type.Prim);
+            var vertexPVD = new Vertex("PVD", Guid.NewGuid().ToString(), 7, Type.Prim);
+            var vertexBOS = new Vertex("BOS", Guid.NewGuid().ToString(), 8, Type.Prim);
 
             var list = new List<Vertex> { vertexSFO, vertexLAX, vertexDFW, vertexORD, vertexMIA, vertexBWI, vertexJFK, vertexPVD, vertexBOS };
 
@@ -143,7 +143,7 @@ namespace TestingForGraphsCs
             var list = new List<Vertex>();
             for (int i = 0; i < 87; i++)
             {
-                list.Add(new Vertex($"{i}", Guid.NewGuid().ToString(), i));
+                list.Add(new Vertex($"{i}", Guid.NewGuid().ToString(), i, Type.Prim));
             }
 
             int?[,] adj_Matrix = new int?[87, 87];
@@ -265,15 +265,15 @@ namespace TestingForGraphsCs
 
             //https://www.geeksforgeeks.org/boruvkas-algorithm-greedy-algo-9/
 
-            var vertexA = new Vertex("0", Guid.NewGuid().ToString(), 0);
-            var vertexB = new Vertex("1", Guid.NewGuid().ToString(), 1);
-            var vertexC = new Vertex("2", Guid.NewGuid().ToString(), 2);
-            var vertexD = new Vertex("3", Guid.NewGuid().ToString(), 3);
-            var vertexE = new Vertex("4", Guid.NewGuid().ToString(), 4);
-            var vertexF = new Vertex("5", Guid.NewGuid().ToString(), 5);
-            var vertexG = new Vertex("6", Guid.NewGuid().ToString(), 6);
-            var vertexH = new Vertex("7", Guid.NewGuid().ToString(), 7);
-            var vertexI = new Vertex("8", Guid.NewGuid().ToString(), 8);
+            var vertexA = new Vertex("0", Guid.NewGuid().ToString(), 0, Type.Prim);
+            var vertexB = new Vertex("1", Guid.NewGuid().ToString(), 1, Type.Prim);
+            var vertexC = new Vertex("2", Guid.NewGuid().ToString(), 2, Type.Prim);
+            var vertexD = new Vertex("3", Guid.NewGuid().ToString(), 3, Type.Prim);
+            var vertexE = new Vertex("4", Guid.NewGuid().ToString(), 4, Type.Prim);
+            var vertexF = new Vertex("5", Guid.NewGuid().ToString(), 5, Type.Prim);
+            var vertexG = new Vertex("6", Guid.NewGuid().ToString(), 6, Type.Prim);
+            var vertexH = new Vertex("7", Guid.NewGuid().ToString(), 7, Type.Prim);
+            var vertexI = new Vertex("8", Guid.NewGuid().ToString(), 8, Type.Prim);
 
             var list = new List<Vertex> { vertexA, vertexB, vertexC, vertexD, vertexE, vertexF, vertexG, vertexH, vertexI };
 
@@ -312,14 +312,14 @@ namespace TestingForGraphsCs
         public void Test6()
         {
 
-            var vertexA = new Vertex("A", Guid.NewGuid().ToString(), 0);
-            var vertexB = new Vertex("B", Guid.NewGuid().ToString(), 1);
-            var vertexC = new Vertex("C", Guid.NewGuid().ToString(), 2);
-            var vertexD = new Vertex("D", Guid.NewGuid().ToString(), 3);
-            var vertexE = new Vertex("E", Guid.NewGuid().ToString(), 4);
-            var vertexF = new Vertex("F", Guid.NewGuid().ToString(), 5);
-            var vertexG = new Vertex("G", Guid.NewGuid().ToString(), 6);
-            var vertexH = new Vertex("H", Guid.NewGuid().ToString(), 7);
+            var vertexA = new Vertex("A", Guid.NewGuid().ToString(), 0, Type.Prim);
+            var vertexB = new Vertex("B", Guid.NewGuid().ToString(), 1, Type.Prim);
+            var vertexC = new Vertex("C", Guid.NewGuid().ToString(), 2, Type.Prim);
+            var vertexD = new Vertex("D", Guid.NewGuid().ToString(), 3, Type.Prim);
+            var vertexE = new Vertex("E", Guid.NewGuid().ToString(), 4, Type.Prim);
+            var vertexF = new Vertex("F", Guid.NewGuid().ToString(), 5, Type.Prim);
+            var vertexG = new Vertex("G", Guid.NewGuid().ToString(), 6, Type.Prim);
+            var vertexH = new Vertex("H", Guid.NewGuid().ToString(), 7, Type.Prim);
 
             int?[,] adj_Matrix = new int?[8, 8] { 
                         // A    B    C    D     E    F     G     H
@@ -357,7 +357,7 @@ namespace TestingForGraphsCs
             var list = new List<Vertex>();
             for (int i = 0; i < 16; i++)
             {
-                list.Add(new Vertex($"{i}", Guid.NewGuid().ToString(), i));
+                list.Add(new Vertex($"{i}", Guid.NewGuid().ToString(), i, Type.Prim));
             }
 
             int?[,] adj_Matrix = new int?[16, 16];
@@ -408,15 +408,15 @@ namespace TestingForGraphsCs
         public void Test8()
         {
 
-            var vertexA = new Vertex("A", Guid.NewGuid().ToString(), 0);
-            var vertexB = new Vertex("B", Guid.NewGuid().ToString(), 1);
-            var vertexC = new Vertex("C", Guid.NewGuid().ToString(), 2);
-            var vertexD = new Vertex("D", Guid.NewGuid().ToString(), 3);
-            var vertexE = new Vertex("E", Guid.NewGuid().ToString(), 4);
-            var vertexF = new Vertex("F", Guid.NewGuid().ToString(), 5);
-            var vertexG = new Vertex("G", Guid.NewGuid().ToString(), 6);
-            var vertexH = new Vertex("H", Guid.NewGuid().ToString(), 7);
-            var vertexI = new Vertex("H", Guid.NewGuid().ToString(), 8);
+            var vertexA = new Vertex("A", Guid.NewGuid().ToString(), 0, Type.Prim);
+            var vertexB = new Vertex("B", Guid.NewGuid().ToString(), 1, Type.Prim);
+            var vertexC = new Vertex("C", Guid.NewGuid().ToString(), 2, Type.Prim);
+            var vertexD = new Vertex("D", Guid.NewGuid().ToString(), 3, Type.Prim);
+            var vertexE = new Vertex("E", Guid.NewGuid().ToString(), 4, Type.Prim);
+            var vertexF = new Vertex("F", Guid.NewGuid().ToString(), 5, Type.Prim);
+            var vertexG = new Vertex("G", Guid.NewGuid().ToString(), 6, Type.Prim);
+            var vertexH = new Vertex("H", Guid.NewGuid().ToString(), 7, Type.Prim);
+            var vertexI = new Vertex("H", Guid.NewGuid().ToString(), 8, Type.Prim);
 
             var list = new List<Vertex> { vertexA, vertexB, vertexC, vertexD, vertexE, vertexF, vertexG, vertexH, vertexI };
 
