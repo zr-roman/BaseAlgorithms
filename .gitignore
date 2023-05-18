@@ -164,3 +164,6 @@ TestingForGraphsCs/obj/Debug/net7.0/TestingForGraphsCs.GlobalUsings.g.cs
 .vs/BaseAlgorithms/v17/TestStore/0/126.testlog
 .vs/BaseAlgorithms/v17/TestStore/0/130.testlog
 .vs/BaseAlgorithms/v17/TestStore/0/135.testlog
+SQLServer/obj/Debug/net7.0/.NETCoreApp,Version=v7.0.AssemblyAttributes.cs
+SQLServer/obj/Debug/net7.0/SQLServer.AssemblyInfo.cs
+SQLServer/obj/Debug/net7.0/SQLServer.GlobalUsings.g.cs
