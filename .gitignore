@@ -167,3 +167,8 @@ TestingForGraphsCs/obj/Debug/net7.0/TestingForGraphsCs.GlobalUsings.g.cs
 SQLServer/obj/Debug/net7.0/.NETCoreApp,Version=v7.0.AssemblyAttributes.cs
 SQLServer/obj/Debug/net7.0/SQLServer.AssemblyInfo.cs
 SQLServer/obj/Debug/net7.0/SQLServer.GlobalUsings.g.cs
+
+# CMake
+!CMakeLists.txt
+build/
+out/
