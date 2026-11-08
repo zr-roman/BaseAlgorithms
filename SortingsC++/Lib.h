@@ -5,7 +5,10 @@
 #include <random>
 #include <iostream>
 #include<stdexcept>
-
+#include <memory>
+#include <string>
+#include <utility>
+#include <cmath>
 
 using namespace std;
 
@@ -13,7 +16,7 @@ using namespace std;
 
 class RandomizationLib {
     public:
-        static int GenerateRandomNumber( const int& start, const int& end );
+        static int GenerateRandomNumber( int start, int end );
 };
 
 class SortingLib {
@@ -42,7 +45,10 @@ class SortingLib {
         static void HeapSort( vector<T>* arr, const Order& order = Order::ASC );
         
         template<typename T>
-        static void MergeSort( vector<T>* arr, const T& positiveInfinity, const T& negativeInfinity, const Order& order = Order::ASC );
+        static void MergeSort_Cormen( vector<T>* arr, const T& positiveInfinity, const T& negativeInfinity, const Order& order = Order::ASC );
+
+        template<typename T>
+        static void MergeSort_General( vector<T>* arr, const Order& order = Order::ASC );
         
         template <typename T>
         static void BubbleSort( vector<T>* arr, const Order& order = Order::ASC );
@@ -78,7 +84,10 @@ class SortingLib {
         class HeapSortInner;
 
         template <class T>
-        class MergeSortInner;
+        class MergeSortInner_Cormen;
+
+        template <class T>
+        class MergeSortInner_General;
 
         template <class T>
         class BruteForceSortInner;
@@ -107,6 +116,10 @@ class SortingLib {
 
         template <typename T>
         static T GetGreatestKeyValue( const vector<T>& arr );
+
+        // демонстрация unique_ptr с собственным удалителем (custom deleter)
+        template <class T>
+        static void DeleteSort( SortInner<T>* sort_ptr );
 
         // перегрузка 1
         template <class T>
@@ -155,19 +168,32 @@ class SortingLib::QuickSortInner: public SortingLib::SortInner<T> {
         const Pivot pivot;
 };
 
-/*////////////////////////////// Class MergeSortInner ///////////////////////////////*/
+/*////////////////////////////// Class MergeSortInner_Cormen ///////////////////////////////*/
 
 template <class T>
-class SortingLib::MergeSortInner : public SortingLib::SortInner<T> {
+class SortingLib::MergeSortInner_Cormen : public SortingLib::SortInner<T> {
 
     public:
-        MergeSortInner( vector<T>* arr, const T& positiveInfinity, const T& negativeInfinity, const Order& order ) : SortInner<T>( arr, order ), negativeInfinity( negativeInfinity ), positiveInfinity( positiveInfinity ) { };
+        MergeSortInner_Cormen( vector<T>* arr, const T& positiveInfinity, const T& negativeInfinity, const Order& order ) : SortInner<T>( arr, order ), negativeInfinity( negativeInfinity ), positiveInfinity( positiveInfinity ) { };
 
     private:
         virtual void DoSort( const unsigned int& start, const unsigned int& end ) override;
         void Merge( const size_t& start, const size_t& mid, const size_t& end );
-        const T positiveInfinity;
         const T negativeInfinity;
+        const T positiveInfinity;
+};
+
+/*////////////////////////////// Class MergeSortInner_General ///////////////////////////////*/
+
+template <class T>
+class SortingLib::MergeSortInner_General : public SortingLib::SortInner<T> {
+
+    public:
+        MergeSortInner_General( vector<T>* arr, const Order& order ) : SortInner<T>( arr, order ) { };
+
+    private:
+        virtual void DoSort( const unsigned int& start, const unsigned int& end ) override;
+        void Merge( const size_t& start, const size_t& mid, const size_t& end );
 };
 
 /*////////////////////////////// Class HeapSortInner ///////////////////////////////*/
@@ -273,9 +299,9 @@ void SortingLib::SelectionSort( vector<T>* arr, const Order& order ) {
     SortingLib::DoPerformSort( unique_ptr<SortInner<T>> ( make_unique<SortingLib::SelectionSortInner<T>>( arr, order ) ) );
 };
 
+// custom deleter for unique_ptr (demonstrates unique_ptr<T, Deleter>)
 template <typename T>
-void delSort( SortingLib::SortInner<T>* sort_ptr ) {
-    cout << "Deleting " << sort_ptr->GetName() << endl;
+void SortingLib::DeleteSort( SortingLib::SortInner<T>* sort_ptr ) {
     delete sort_ptr;
 }
 
@@ -287,7 +313,7 @@ void SortingLib::DoPerformSort( unique_ptr<SortingLib::SortInner<T>, void (*)(So
 template <typename T>
 void SortingLib::BruteForceSort( vector<T>* arr, const Order& order ) {
 
-    unique_ptr<SortingLib::SortInner<T>, void (*)(SortingLib::SortInner<T>*)> p( nullptr, delSort );
+    unique_ptr<SortingLib::SortInner<T>, void (*)(SortingLib::SortInner<T>*)> p( nullptr, &SortingLib::DeleteSort<T> );
     p.reset( new SortingLib::BruteForceSortInner<T>( arr, order ));
 
     DoPerformSort( move( p ) );
@@ -304,8 +330,13 @@ void SortingLib::QuickSort( vector<T>* arr, const Order& order, const Pivot& piv
 }
 
 template<typename T>
-void SortingLib::MergeSort( vector<T>* arr, const T& positiveInfinity, const T& negativeInfinity, const Order& order ) {
-    SortingLib::DoPerformSort( unique_ptr<SortInner<T>> ( make_unique<SortingLib::MergeSortInner<T>>( arr, positiveInfinity, negativeInfinity, order ) ) );
+void SortingLib::MergeSort_Cormen( vector<T>* arr, const T& positiveInfinity, const T& negativeInfinity, const Order& order ) {
+    SortingLib::DoPerformSort( unique_ptr<SortInner<T>> ( make_unique<SortingLib::MergeSortInner_Cormen<T>>( arr, positiveInfinity, negativeInfinity, order ) ) );
+}
+
+template<typename T>
+void SortingLib::MergeSort_General( vector<T>* arr, const Order& order ) {
+    SortingLib::DoPerformSort( unique_ptr<SortInner<T>> ( make_unique<SortingLib::MergeSortInner_General<T>>( arr, order ) ) );
 }
 
 template<typename T>
@@ -315,11 +346,10 @@ void SortingLib::HeapSort( vector<T>* arr, const Order& order ) {
 
 template <typename T>
 SortingLib::SortInner<T>::SortInner( vector<T>* arr, const SortingLib::Order& order, string&& name ) : order( order ), _name(move(name)) {
-            
-    if ( !arr || arr->size() == 0 ) {
-        throw runtime_error("Error: null or emply array not allowed!");
-    }
-            
+    
+    if ( arr == nullptr)
+        throw invalid_argument("Error: null array not allowed!");
+
     already_sorted = true;
 
     if ( order == Order::ASC ) {
@@ -351,6 +381,10 @@ void SortingLib::SortInner<T>::Sort( const unsigned int& start, const unsigned i
 
 template <typename T>
 SortingLib::QuickSortInner<T>::QuickSortInner( vector<T>* arr, const Order& order, const Pivot& pivot ) : SortingLib::SortInner<T>( arr, order ), pivot( pivot ) {
+    
+    if ( this->already_sorted ) 
+        return;
+
     // randomization: shuffle up the input
     for ( size_t i = 0; i < this->arr->size(); i++ ) {
         auto random_index = RandomizationLib::GenerateRandomNumber( 0, this->arr->size() - 1 );
@@ -432,7 +466,7 @@ bool SortingLib::QuickSortInner<T>::comparison_succeeds( const size_t& j, const 
 }
 
 template <typename T>
-void SortingLib::MergeSortInner<T>::DoSort( const unsigned int& start, const unsigned int& end ) {
+void SortingLib::MergeSortInner_Cormen<T>::DoSort( const unsigned int& start, const unsigned int& end ) {
             
     if ( start >= end ) {
         return;
@@ -449,7 +483,7 @@ void SortingLib::MergeSortInner<T>::DoSort( const unsigned int& start, const uns
 };
 
 template <typename T>
-void SortingLib::MergeSortInner<T>::Merge( const size_t& start, const size_t& mid, const size_t& end ) {
+void SortingLib::MergeSortInner_Cormen<T>::Merge( const size_t& start, const size_t& mid, const size_t& end ) {
             
     auto n1 = mid - start + 1;
     auto n2 = end - mid;
@@ -471,9 +505,16 @@ void SortingLib::MergeSortInner<T>::Merge( const size_t& start, const size_t& mi
     }
     arrayC[ arrayC.size() - 1 ] = this->order == Order::ASC ? positiveInfinity : negativeInfinity;
 
+    // Слабое место: positiveInfinity должна быть строго больше любого настоящего элемента.
+    // А negativeInfinity, соответственно, строго меньше любого настоящего элемента.
+    // Для int передается INT_MAX (INT_MIN), а если такое же число встречается в данных, ограничитель и настоящий элемент сравниваются как равные. 
+    // Цикл может выбрать ограничитель вместо настоящего числа и выйти за конец половины.
+    // Здесь это приведет к исключению std::out_of_range из at(). 
+    // К тому же для произвольного T (строк, своих структур) подходящую «бесконечность» часто вообще не подобрать.
+
     bi = ci = 0;
     for ( size_t i = start; i <= end; i++ ) {
-        if ( ( this->order == Order::ASC && arrayB.at( bi ) < arrayC.at( ci ) ) || ( this->order == Order::DESC && arrayB.at( bi ) > arrayC.at( ci ) ) ) {
+        if ( ( this->order == Order::ASC && arrayB.at( bi ) <= arrayC.at( ci ) ) || ( this->order == Order::DESC && arrayB.at( bi ) >= arrayC.at( ci ) ) ) {
             this->arr->at( i ) = arrayB.at( bi );
             bi++;
         } else {
@@ -484,7 +525,51 @@ void SortingLib::MergeSortInner<T>::Merge( const size_t& start, const size_t& mi
 };
 
 template <typename T>
-void SortingLib::HeapSortInner<T>::DoSort( const unsigned int& start, const unsigned int& end ) {
+void SortingLib::MergeSortInner_General<T>::DoSort( const unsigned int& start, const unsigned int& end ) {
+            
+    if ( start >= end ) {
+        return;
+    }
+
+    auto mid = ( start + end ) / 2;
+            
+    DoSort( start, mid );
+    if ( mid != 0xffffffff) { // max value for unsigned int
+        DoSort( mid + 1, end );
+    }
+            
+    Merge( start, mid, end );
+};
+
+template <typename T>
+void SortingLib::MergeSortInner_General<T>::Merge( const size_t& start, const size_t& mid, const size_t& end ) {
+
+    vector<T> left( this->arr->begin() + start, this->arr->begin() + mid + 1 );
+    vector<T> right( this->arr->begin() + mid + 1, this->arr->begin() + end + 1 );
+
+    // take from the right half only if it is strictly "better": equal keys keep their order (stability)
+    auto right_goes_first = [this]( const T& l, const T& r ) {
+        return this->order == Order::ASC ? r < l : l < r;
+    };
+
+    size_t li = 0, ri = 0, i = start;
+    while ( li < left.size() && ri < right.size() ) {
+        if ( right_goes_first( left[ li ], right[ ri ] ) ) {
+            this->arr->at( i++ ) = std::move( right[ ri++ ] );
+        } else {
+            this->arr->at( i++ ) = std::move( left[ li++ ] );
+        }
+    }
+    while ( li < left.size() ) {
+        this->arr->at( i++ ) = std::move( left[ li++ ] );
+    }
+    while ( ri < right.size() ) {
+        this->arr->at( i++ ) = std::move( right[ ri++ ] );
+    }
+};
+
+template <typename T>
+void SortingLib::HeapSortInner<T>::DoSort( const unsigned int& /*start*/, const unsigned int& /*end*/ ) {
     BuildHeap();
     size_t heapSize = this->arr->size();
     while( heapSize > 1 ) {
@@ -509,13 +594,13 @@ void SortingLib::HeapSortInner<T>::Heapify( const size_t& i, const size_t& heapS
 
     size_t indexBiggestOrSmallestElm;
 
-    if ( indexLeftChild < heapSize && ( ( this->order == Order::ASC && this->arr->at( indexLeftChild ) > this->arr->at( i ) || ( this->order == Order::DESC && this->arr->at( indexLeftChild ) < this->arr->at( i ) ) ) ) ) {
+    if ( indexLeftChild < heapSize && ( ( ( this->order == Order::ASC && this->arr->at( indexLeftChild ) > this->arr->at( i ) ) || ( this->order == Order::DESC && this->arr->at( indexLeftChild ) < this->arr->at( i ) ) ) ) ) {
         indexBiggestOrSmallestElm = indexLeftChild;
     } else {
         indexBiggestOrSmallestElm = i;
     }
 
-    if ( indexRightChild < heapSize && ( ( this->order == Order::ASC && this->arr->at( indexRightChild ) > this->arr->at( indexBiggestOrSmallestElm ) || ( this->order == Order::DESC && this->arr->at( indexRightChild ) < this->arr->at( indexBiggestOrSmallestElm ) ) ) ) ) {
+    if ( indexRightChild < heapSize && ( ( ( this->order == Order::ASC && this->arr->at( indexRightChild ) > this->arr->at( indexBiggestOrSmallestElm ) ) || ( this->order == Order::DESC && this->arr->at( indexRightChild ) < this->arr->at( indexBiggestOrSmallestElm ) ) ) ) ) {
         indexBiggestOrSmallestElm = indexRightChild;
     }
 
@@ -549,16 +634,17 @@ T SortingLib::GetGreatestKeyValue( const vector<T>& arr ) {
 };
 
 template<typename T>
-void SortingLib::ShellSortInner<T>::DoSort(const unsigned int& start, const unsigned int& end) {
+void SortingLib::ShellSortInner<T>::DoSort(const unsigned int& /*start*/, const unsigned int& /*end*/) {
 
     auto o{ this->order };
     auto comparison_succeeds = [&o](const T& key, const T& comparant) -> bool {
         return (o == Order::ASC && key < comparant) || (o == Order::DESC && key > comparant);
     };
 
-    for (const auto& gap : this->gaps) {
+    const auto n = static_cast<long long>( this->arr->size() );
 
-        for (auto i = 0 + gap; i < this->arr->size(); i++) {
+    for (int gap : this->gaps) {
+        for (long long i = 0 + gap; i < n; i++) {
             auto key = this->arr->at(i);
             auto j = i - gap;
             while (j >= 0 && comparison_succeeds(key, this->arr->at(j))) {
@@ -571,8 +657,8 @@ void SortingLib::ShellSortInner<T>::DoSort(const unsigned int& start, const unsi
 };
 
 template<typename T>
-void SortingLib::BubbleSortInner<T>::DoSort( const unsigned int& start, const unsigned int& end ) {
-    int work_area_size = this->arr->size();
+void SortingLib::BubbleSortInner<T>::DoSort( const unsigned int& /*start*/, const unsigned int& /*end*/ ) {
+    size_t work_area_size = this->arr->size();
     while ( work_area_size > 1 ) {
         for ( size_t i = 0; i + 1 < work_area_size; i++ ) {
             if ( ( this->order == Order::ASC && this->arr->at( i ) > this->arr->at( i + 1 ) ) || ( this->order == Order::DESC && this->arr->at( i ) < this->arr->at( i + 1 ) ) ) {
@@ -584,7 +670,7 @@ void SortingLib::BubbleSortInner<T>::DoSort( const unsigned int& start, const un
 };
 
 template<typename T>
-void SortingLib::CombSortInner<T>::DoSort( const unsigned int& start, const unsigned int& end ) {
+void SortingLib::CombSortInner<T>::DoSort( const unsigned int& /*start*/, const unsigned int& /*end*/ ) {
 
     int step = this->arr->size() - 1;
     
@@ -593,7 +679,7 @@ void SortingLib::CombSortInner<T>::DoSort( const unsigned int& start, const unsi
         bool swap_occured = false;
         
         for ( size_t i = 0; i + step < this->arr->size(); i++ ) {
-            if ( ( this->order == Order::ASC && this->arr->at( i ) > this->arr->at( i + step ) || ( this->order == Order::DESC && this->arr->at( i ) < this->arr->at( i + step ) ) ) ) {
+            if ( ( ( this->order == Order::ASC && this->arr->at( i ) > this->arr->at( i + step ) ) || ( this->order == Order::DESC && this->arr->at( i ) < this->arr->at( i + step ) ) ) ) {
                 swap( this->arr->at( i ), this->arr->at( i + step ) );
                 swap_occured = true;
             }
@@ -607,12 +693,11 @@ void SortingLib::CombSortInner<T>::DoSort( const unsigned int& start, const unsi
 };
 
 template<typename T>
-void SortingLib::SelectionSortInner<T>::DoSort( const unsigned int& start, const unsigned int& end ) {
+void SortingLib::SelectionSortInner<T>::DoSort( const unsigned int& /*start*/, const unsigned int& /*end*/ ) {
 
     auto o{ this->order };
-    auto comparison_succeeds = [o](T key, T comparant) -> bool& {
-        auto res = ( o == Order::ASC && comparant < key) || ( o == Order::DESC && comparant > key );
-        return res;
+    auto comparison_succeeds = [o](T key, T comparant) -> bool {
+        return ( o == Order::ASC && comparant < key) || ( o == Order::DESC && comparant > key );
     };
 
     for ( size_t i = 0; i < this->arr->size(); i++ ) {
@@ -629,7 +714,7 @@ void SortingLib::SelectionSortInner<T>::DoSort( const unsigned int& start, const
 };
 
 template<typename T>
-void SortingLib::BruteForceSortInner<T>::DoSort( const unsigned int& start, const unsigned int& end ) {
+void SortingLib::BruteForceSortInner<T>::DoSort( const unsigned int& /*start*/, const unsigned int& /*end*/ ) {
 
     auto o{ this->order };
     auto comparison_succeeds = [o]( T &Ti, T &Tj ) -> bool {

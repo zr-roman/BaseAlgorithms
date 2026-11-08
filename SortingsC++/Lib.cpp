@@ -1,5 +1,8 @@
 ﻿#include "Lib.h"
 #include <vector>
+#include <algorithm>
+#include <climits>
+#include <iterator>
 
 using namespace std;
 
@@ -13,16 +16,15 @@ double SortingLib::shrinkFactor = 1 / ( 1 - exp( -( (sqrt(5) + 1) / 2 ) ) ); // 
 /// <param name="start">: inclusive lower bound</param>
 /// <param name="end">: inclusive upper bound</param>
 /// <returns>A random number within a given range</returns>
-int RandomizationLib::GenerateRandomNumber( const int& start, const int& end ) {
-    random_device dev;
-    mt19937 rng( dev() );
-    uniform_int_distribution<int> dist( start, end );
+int RandomizationLib::GenerateRandomNumber( int start, int end ) {
+    thread_local std::mt19937 rng( std::random_device{}() ); // засевается один раз на поток
+    std::uniform_int_distribution<int> dist( start, end );   // создавать дёшево, можно каждый раз
     auto res = dist( rng );
     return res;
 };
-//В данном случае возврат происходит by value, что означает, что int(4 байта в 32-разрядной системе) будет скопирован при возврате.
-//Возвращаемый тип int& означает, что будет возвращена постоянная ссылка на int(4 байта в 32-разрядной системе).
-//Как видно, в этом случае нет никакого преимущества в производительности при использовании return-by-reference вместо return-by-value.
+// В данном случае возврат происходит by value, что означает, что int(4 байта в 32-разрядной системе) будет скопирован при возврате.
+// Возвращаемый тип int& означает, что будет возвращена постоянная ссылка на int(4 байта в 32-разрядной системе).
+// Как видно, в этом случае нет никакого преимущества в производительности при использовании return-by-reference вместо return-by-value.
 
 class SortingLib::LinearTimeSort : public SortingLib::SortInner<int> {
 
@@ -45,23 +47,22 @@ class SortingLib::RadixSortInner : public SortingLib::LinearTimeSort {
         RadixSortInner( vector<int>* arr, const Order& order );
 
     protected:
-        virtual void SpecificSort( vector<int>* arr, const int& radix_param = 0 ) override; // GoF template method
+        virtual void SpecificSort( vector<int>* arr, const int& = 0 ) override; // GoF template method
 
     private:
         unique_ptr<SortingLib::CountingSortInner> _counting_sort;
 };
 
-void SortingLib::LinearTimeSort::DoSort( const unsigned int& start, const unsigned int& end ) {
+void SortingLib::LinearTimeSort::DoSort( const unsigned int&, const unsigned int& ) {
 
     vector<int> negativeArray;
     vector<int> positiveArray;
 
     for ( size_t i = 0; i < arr->size(); i++ ) {
-        if ( arr->at( i ) < 0 ) {
-            negativeArray.push_back( -arr->at( i ) );
-            continue;
-        }
-        positiveArray.push_back( arr->at( i ) );
+        if ( arr->at( i ) < 0 )
+            negativeArray.push_back( ~arr->at( i ) ); // ~x == -x - 1: never overflows, even for INT_MIN
+        else 
+            positiveArray.push_back( arr->at( i ) );
     }
     
     SpecificSort( &negativeArray );
@@ -69,8 +70,8 @@ void SortingLib::LinearTimeSort::DoSort( const unsigned int& start, const unsign
     
     int index = 0;
     if ( order == SortingLib::Order::ASC ) {
-        for ( int i = negativeArray.size() - 1; i >= 0; i-- ) {
-            arr->at( index ) = -negativeArray.at( i );
+        for ( std::ptrdiff_t i = std::ssize( negativeArray ) - 1; i >= 0; i-- ) { // std::ssize — C++20
+            arr->at( index ) = ~negativeArray.at( i );
             index++;
         }
         for ( size_t i = 0; i < positiveArray.size(); i++ ) {
@@ -78,16 +79,15 @@ void SortingLib::LinearTimeSort::DoSort( const unsigned int& start, const unsign
             index++;
         }
     } else {
-        for ( int i = positiveArray.size() - 1; i >= 0; i-- ) {
+        for ( std::ptrdiff_t i = std::ssize( positiveArray ) - 1; i >= 0; i-- ) { // std::ssize — C++20
             arr->at( index ) = positiveArray.at( i );
             index++;
         }
         for ( size_t i = 0; i < negativeArray.size(); i++ ) {
-            arr->at( index ) = -negativeArray.at( i );
+            arr->at( index ) = ~negativeArray.at( i );
             index++;
         }
     }
-
 };
 
 void SortingLib::CountingSortInner::SpecificSort( vector<int>* arr, const int& radix_param ) {
@@ -132,7 +132,7 @@ void SortingLib::CountingSortInner::SpecificSort( vector<int>* arr, const int& r
 
     // заполнение результирующего массива
     // для сохранения свойства stable цикл идет в обратном порядке
-    for ( int i = arr->size() - 1; i >= 0 ; i-- ) {
+    for ( long long i = static_cast<long long>( arr->size() ) - 1; i >= 0 ; i-- ) {
         auto ind = func( arr->at( i ) );
         arrayB.at( ind )--;
         auto resInd = arrayB.at( ind );
@@ -146,7 +146,7 @@ void SortingLib::CountingSortInner::SpecificSort( vector<int>* arr, const int& r
 
 }
 
- void SortingLib::RadixSortInner::SpecificSort( vector<int>* arr, const int& radix_param ) {
+ void SortingLib::RadixSortInner::SpecificSort( vector<int>* arr, const int& /*radix_param*/ ) {
 
     if ( !arr || arr->size() == 0 ) {
         return;
@@ -157,9 +157,11 @@ void SortingLib::CountingSortInner::SpecificSort( vector<int>* arr, const int& r
 
     auto raise_of_ten = 1;
 
-    for (size_t i = 0; i < num_of_digits; i++) {
+    for (int i = 0; i < num_of_digits; i++) {
         _counting_sort->SpecificSort( arr, raise_of_ten );
-        raise_of_ten *= 10;
+        if ( i + 1 < num_of_digits ) {
+            raise_of_ten *= 10; // 10^10 does not fit into int, so stop at the last digit
+        }
     }
 };
 
@@ -185,4 +187,43 @@ void SortingLib::CountingSort( vector<int>* arr, const Order& order ) {
     // Since the inputs are uniformly and independently distributed over [0,1), we do not expect many numbers to fall into each bucket.
     // To produce the output, we simply sort the numbers in each bucket and then go through the buckets in order, listing elements in each.
 
+    if ( !arr ) {
+        throw invalid_argument( "Error: null array is not allowed!" );
+    }
+
+    const size_t n = arr->size();
+
+    if ( n < 2 )
+        return;
+
+    const auto [ min_it, max_it ] = minmax_element( arr->begin(), arr->end() );
+    const long long min = *min_it;
+    const long long range = static_cast<long long>( *max_it ) - min + 1;
+
+    vector<vector<int>> buckets( n );
+    for ( int x : *arr ) {
+        auto index = static_cast<size_t>( ( x - min ) * static_cast<long long>( n ) / range ); // 0 .. n-1
+        buckets[ index ].push_back( x );
+    }
+
+    size_t pos = 0;
+    for ( auto& bucket : buckets ) {
+        // insertion sort inside a bucket: buckets are expected to be small
+        for ( size_t i = 1; i < bucket.size(); i++ ) {
+            int key = bucket[ i ];
+            size_t j = i;
+            while ( j > 0 && bucket[ j - 1 ] > key ) {
+                bucket[ j ] = bucket[ j - 1 ];
+                j--;
+            }
+            bucket[ j ] = key;
+        }
+        for ( int x : bucket ) {
+            arr->at( pos++ ) = x;
+        }
+    }
+
+    if ( order == Order::DESC ) {
+        reverse( arr->begin(), arr->end() );
+    }
 }

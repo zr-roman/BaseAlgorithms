@@ -125,26 +125,24 @@ namespace SortingsUnitTests {
 				auto func = [] {
 					SortingLib::QuickSort( (vector<int>*)(NULL), SortingLib::Order::ASC, SortingLib::Pivot::LAST );
 				};
-				Assert::ExpectException<runtime_error>( func );
+				Assert::ExpectException<invalid_argument>( func );
 			};
 
 			TEST_METHOD( EmptyArray ) {
 
-				auto func = [] { 
-					vector<int> arr(0);
-					SortingLib::QuickSort( &arr, SortingLib::Order::ASC, SortingLib::Pivot::LAST );
-				};
-				Assert::ExpectException<runtime_error>( func );
+				vector<int> arr;
+				SortingLib::QuickSort( &arr, SortingLib::Order::ASC, SortingLib::Pivot::LAST );  // не должно бросать
+				Assert::IsTrue( arr.empty() );
 			};
 	};
 
-	TEST_CLASS( MergeSort ) {
+	TEST_CLASS( MergeSort_Cormen ) {
 
 		public:
 			TEST_METHOD( Asc ) {
 				vector<int> arr = LibForTests::GetArbitraryArray(-N, N);
 
-				SortingLib::MergeSort( &arr, INT_MAX, INT_MIN, SortingLib::Order::ASC);
+				SortingLib::MergeSort_Cormen( &arr, INT_MAX, INT_MIN, SortingLib::Order::ASC);
 				for (size_t i = 0; i + 1 < arr.size(); i++) {
 					Assert::IsTrue(arr.at(i) <= arr.at(i + 1));
 					
@@ -154,14 +152,36 @@ namespace SortingsUnitTests {
 			TEST_METHOD( Desc ) {
 				vector<int> arr = LibForTests::GetArbitraryArray(-N, N);
 
-				SortingLib::MergeSort( &arr, INT_MAX, INT_MIN, SortingLib::Order::DESC );
+				SortingLib::MergeSort_Cormen( &arr, INT_MAX, INT_MIN, SortingLib::Order::DESC );
 				for (size_t i = 0; i + 1 < arr.size(); i++) {
 					Assert::IsTrue(arr.at(i) >= arr.at(i + 1));
 					
 				}
 			};
+	};
 
+	TEST_CLASS( MergeSort_General ) {
 
+		public:
+			TEST_METHOD( Asc ) {
+				vector<int> arr = LibForTests::GetArbitraryArray(-N, N);
+
+				SortingLib::MergeSort_General( &arr, SortingLib::Order::ASC);
+				for (size_t i = 0; i + 1 < arr.size(); i++) {
+					Assert::IsTrue(arr.at(i) <= arr.at(i + 1));
+					
+				}
+			};
+
+			TEST_METHOD( Desc ) {
+				vector<int> arr = LibForTests::GetArbitraryArray(-N, N);
+
+				SortingLib::MergeSort_General( &arr, SortingLib::Order::DESC );
+				for (size_t i = 0; i + 1 < arr.size(); i++) {
+					Assert::IsTrue(arr.at(i) >= arr.at(i + 1));
+					
+				}
+			};
 	};
 
 	TEST_CLASS( HeapSort ) {
