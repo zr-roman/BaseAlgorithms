@@ -36,7 +36,7 @@ public class DicChaining<TKey, TValue> : Hashing<TKey, TValue> {
 
     // Поиск по ключу
     public override Tuple<bool, TValue> Search( TKey key ) {
-        var item = GetChainItem( key ).Item1;
+        var item = GetChainItem( key ).Curr;
         return item == null ? new Tuple<bool, TValue>( false, default ) : new Tuple<bool, TValue>( true, item.value );
     }
 
@@ -45,9 +45,9 @@ public class DicChaining<TKey, TValue> : Hashing<TKey, TValue> {
             
         var r = GetChainItem( key );
 
-        var prev = r.Item1;
-        var item = r.Item2;
-        var hash = r.Item3;
+        var prev = r.Prev;
+        var item = r.Curr;
+        var hash = r.Hash;
 
         if ( item == null ) { return; }
 
@@ -69,23 +69,28 @@ public class DicChaining<TKey, TValue> : Hashing<TKey, TValue> {
     }
 
     // Получить узел по ключу
-    private Tuple<Record, Record, uint> GetChainItem( TKey key ) {
+    private (Record Prev, Record Curr, uint Hash) GetChainItem( TKey key ) {
 
-        var not_found_res = new Tuple<Record, Record, uint>( null, null, 0 );
+        (Record Prev, Record Curr, uint Hash) not_found_res = new( null, null, 0 );
 
         var hash = GetHash( key );
-        if ( arr[ hash ] == null ) { return not_found_res; }
+
+        if ( arr[ hash ] == null )
+            return not_found_res;
 
         Record prev = null;
         var curr = arr[ hash ];
 
         while ( true ) {
-            if ( curr.key.Equals( key ) ) { return new Tuple<Record, Record, uint>( prev, curr, hash ); }
+
+            if ( curr.key.Equals( key ) ) 
+                return new ( prev, curr, hash );
 
             prev = curr;
             curr = curr.Next;
 
-            if ( curr == null ) { break; }
+            if ( curr == null )
+                break;
         }
             
         return not_found_res;
@@ -93,7 +98,7 @@ public class DicChaining<TKey, TValue> : Hashing<TKey, TValue> {
 
     // Проверить ключ на существование
     private bool CheckKeyExists( TKey key ) {
-        return GetChainItem( key ).Item1 != null;
+        return GetChainItem( key ).Curr != null;
     }
 
     private class Record : Record_Base {
