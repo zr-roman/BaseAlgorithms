@@ -14,8 +14,8 @@ public abstract class Hashing<TKey, TValue> {
         hash_method = hm;
 
         if ( hash_method == HashMethod.UNIVERSAL_HASHING ) {
-            a = GenerateRandomUInt( 0, uint.MaxValue );
-            b = GenerateRandomUInt( 1, uint.MaxValue );
+            a = GenerateRandomUInt( 1, uint.MaxValue );
+            b = GenerateRandomUInt( 0, uint.MaxValue );
         }
     }
 
@@ -101,11 +101,6 @@ public abstract class Hashing<TKey, TValue> {
     }
 
     protected uint GenerateRandomUInt( uint start, uint end ) {
-        
-        uint thirtyBits = (uint)rnd.Next(0, 1 << 30 );
-        uint twoBits = (uint)rnd.Next( 1 << 2 );
-        uint fullRange = ( thirtyBits << 2 ) | twoBits;
-        return (end - start) * fullRange + start;
+        return (uint)rnd.NextInt64(start, (long)end + 1);  // [start, end], обе границы включены
     }
-    
 }
