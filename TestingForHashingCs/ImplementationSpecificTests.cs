@@ -49,6 +49,44 @@ namespace TestingForHashingCs
             for (int k = 0; k < n; k++) TableAssert.Found(t, k, k, $"Key {k}");
         }
 
+        // Two different long keys with the same hash code: long.GetHashCode() xors the two halves of the number.
+        private const long SomeKey = 1L;
+        private const long KeyWithTheSameHashCode = 1L << 32;
+
+        /// <summary>
+        /// Perfect hashing tells keys apart by the number made from the hash code, so it cannot hold
+        /// two keys with equal hash codes. Such a key is rejected with ArgumentException.
+        /// </summary>
+        [TestMethod]
+        public void KeyWithTheHashCodeOfAnotherKey_IsRejected()
+        {
+            Assert.AreEqual(SomeKey.GetHashCode(), KeyWithTheSameHashCode.GetHashCode(), "The test needs two keys with equal hash codes");
+            var t = new PerfectHashTable<long, string>(10);
+            t.Insert(SomeKey, "first");
+
+            var e = Assert.ThrowsException<ArgumentException>(() => t.Insert(KeyWithTheSameHashCode, "second"));
+
+            Assert.AreEqual("key", e.ParamName);
+        }
+
+        [TestMethod]
+        public void RejectedKeyWithTheHashCodeOfAnotherKey_LeavesTheTableUnchanged()
+        {
+            var t = new PerfectHashTable<long, string>(2);
+            t.Insert(SomeKey, "first");
+
+            for (int i = 0; i < 10; i++)
+                Assert.ThrowsException<ArgumentException>(() => t.Insert(KeyWithTheSameHashCode, "second"));
+
+            TableAssert.Found(t, SomeKey, "first");
+            TableAssert.NotFound(t, KeyWithTheSameHashCode);
+
+            // the rejected key did not take a place: the table for two keys accepts one more key and then is full
+            t.Insert(5L, "five");
+            TableAssert.Found(t, 5L, "five");
+            Assert.ThrowsException<InvalidOperationException>(() => t.Insert(6L, "six"), "The table for two keys already has two");
+        }
+
         private static PerfectHashTable<int, string> FullTableOfThreeKeys()
         {
             var t = new PerfectHashTable<int, string>(3);

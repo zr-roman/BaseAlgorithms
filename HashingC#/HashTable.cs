@@ -6,13 +6,13 @@ public abstract class HashTable<TKey, TValue> {
     public abstract void Delete( TKey key );
     public abstract bool Search( TKey key, out TValue value );
 
-    protected HashTable( HashMethod hm = HashMethod.DIVISION ) {
+    protected HashTable( HashMethod hm = HashMethod.Division ) {
 
         rnd = new Random();
 
         hash_method = hm;
 
-        if ( hash_method == HashMethod.UNIVERSAL_HASHING ) {
+        if ( hash_method == HashMethod.UniversalHashing ) {
             a = GenerateRandomUInt( 1, uint.MaxValue );
             b = GenerateRandomUInt( 0, uint.MaxValue );
         }
@@ -25,9 +25,9 @@ public abstract class HashTable<TKey, TValue> {
     }
 
     protected enum HashMethod {
-        DIVISION,
-        MULTIPLICATION,
-        UNIVERSAL_HASHING
+        Division,
+        Multiplication,
+        UniversalHashing
     };
 
     protected readonly HashMethod hash_method;
@@ -43,9 +43,9 @@ public abstract class HashTable<TKey, TValue> {
 
     protected uint GetHash( TKey key, uint? a_par = null, uint? b_par = null, uint? m_par = null ) {
         return hash_method switch {
-            HashMethod.DIVISION          => HashFuncDivision( key ),
-            HashMethod.MULTIPLICATION    => HashFuncMultiplication( key ),
-            HashMethod.UNIVERSAL_HASHING => HashFuncUniversal( key, a_par, b_par, m_par ),
+            HashMethod.Division          => HashFuncDivision( key ),
+            HashMethod.Multiplication    => HashFuncMultiplication( key ),
+            HashMethod.UniversalHashing => HashFuncUniversal( key, a_par, b_par, m_par ),
             _ => throw new InvalidOperationException( "Must not hit into here!" ),
         };
     }

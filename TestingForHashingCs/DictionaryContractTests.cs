@@ -81,6 +81,48 @@ namespace TestingForHashingCs
             AssertFound(t, 100, "v100");
         }
 
+        /// <summary>A null key is an error, as in Dictionary: Insert throws ArgumentNullException that names the parameter.</summary>
+        [TestMethod]
+        public void InsertOfNullKey_Throws()
+        {
+            var t = CreateStringTable();
+
+            var e = Assert.ThrowsException<ArgumentNullException>(() => t.Insert(null, 1));
+
+            Assert.AreEqual("key", e.ParamName, "The exception must name the parameter, as ArgumentNullException.ThrowIfNull( key ) does");
+        }
+
+        [TestMethod]
+        public void RejectedNullKey_LeavesTheTableUnchanged()
+        {
+            var t = CreateStringTable();
+            t.Insert("a", 1);
+            t.Insert("b", 2);
+
+            Assert.ThrowsException<ArgumentNullException>(() => t.Insert(null, 3));
+
+            AssertFound(t, "a", 1);
+            AssertFound(t, "b", 2);
+            t.Insert("c", 3);
+            AssertFound(t, "c", 3);
+        }
+
+        /// <summary>
+        /// Search and Delete do not reject null: such a key cannot be in the table, so nothing is found
+        /// and nothing is deleted. The test records this behaviour; Dictionary throws here as well.
+        /// </summary>
+        [TestMethod]
+        public void SearchAndDeleteOfNullKey_FindNothing()
+        {
+            var t = CreateStringTable();
+            t.Insert("a", 1);
+
+            AssertNotFound(t, null);
+            t.Delete(null);
+
+            AssertFound(t, "a", 1);
+        }
+
         [TestMethod]
         public void EmptyTable_FindsNothing()
         {
@@ -275,18 +317,18 @@ namespace TestingForHashingCs
     [TestClass]
     public class OpenAddressingLinearProbingContract : DictionaryContractTests
     {
-        protected override HashTable<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>(ProbingMethod.LINEAR_PROBING);
-        protected override HashTable<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>(ProbingMethod.LINEAR_PROBING);
-        protected override HashTable<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>(ProbingMethod.LINEAR_PROBING);
+        protected override HashTable<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>(ProbingMethod.LinearProbing);
+        protected override HashTable<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>(ProbingMethod.LinearProbing);
+        protected override HashTable<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>(ProbingMethod.LinearProbing);
     }
 
     /// <summary>The same tests for open addressing with double hashing.</summary>
     [TestClass]
     public class OpenAddressingDoubleHashingContract : DictionaryContractTests
     {
-        protected override HashTable<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>(ProbingMethod.DOUBLE_HASHING);
-        protected override HashTable<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>(ProbingMethod.DOUBLE_HASHING);
-        protected override HashTable<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>(ProbingMethod.DOUBLE_HASHING);
+        protected override HashTable<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>(ProbingMethod.DoubleHashing);
+        protected override HashTable<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>(ProbingMethod.DoubleHashing);
+        protected override HashTable<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>(ProbingMethod.DoubleHashing);
     }
 
     [TestClass]

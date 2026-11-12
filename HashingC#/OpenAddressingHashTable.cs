@@ -2,9 +2,9 @@
 
 public enum ProbingMethod
 {
-    LINEAR_PROBING,
-    QUADRATIC_PROBING,
-    DOUBLE_HASHING
+    LinearProbing,
+    QuadraticProbing,
+    DoubleHashing
 }
 
 /// <summary>
@@ -14,8 +14,8 @@ public enum ProbingMethod
 /// <typeparam name="TValue">Тип значения</typeparam>
 public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
-    public OpenAddressingHashTable( ProbingMethod probingMethod = ProbingMethod.QUADRATIC_PROBING )
-            : base( HashMethod.UNIVERSAL_HASHING ) {
+    public OpenAddressingHashTable( ProbingMethod probingMethod = ProbingMethod.QuadraticProbing )
+            : base( HashMethod.UniversalHashing ) {
         m = 16;
         arr = new Record[ m ];
         this.probing_method = probingMethod;
@@ -24,7 +24,9 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
     public override void Insert( TKey key, TValue value ) {
 
-        if ( search( key ).Item1 )
+        ArgumentNullException.ThrowIfNull(key);
+
+        if ( search( key ).Found )
             throw new ArgumentException("Key duplicating is not allowed!");
 
         void func() {
@@ -51,7 +53,7 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
                 if (arr[ hash_ex ] != null)
                     total_deleted--; // удалённая запись заменяется живой
 
-                _insert( hash_ex, key, value, hash );
+                _insert( hash_ex, key, value );
                 done = true;
                 break;
             }
@@ -65,8 +67,8 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
         var search_res = search( key );
 
-        if ( search_res.Item1 )
-            _delete( search_res.Item2 );
+        if ( search_res.Found )
+            _delete( search_res.Index );
     }
 
     public override bool Search( TKey key, out TValue value ) {
@@ -93,8 +95,7 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
     readonly ProbingMethod probing_method;
 
-	class Record(TKey key, TValue value, uint hash) : Record_Base( key, value ) {
-        public uint hash = hash;
+	class Record( TKey key, TValue value ) : Record_Base( key, value ) {
         public bool deleted = false;
     };
 
@@ -115,7 +116,6 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
             for ( uint j = 0; j < m; j++ ) {
                 var hash_ex = DoProbe( arr[ i ].key, hash, j );
                 if ( new_arr[ hash_ex ] is null ) {
-                    arr[ i ].hash = hash;
                     new_arr[ hash_ex ] = arr[ i ];
                     placed = true;
                     break;
@@ -137,7 +137,7 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
         long t = m;
         long tmp = t * 2;
         if ( tmp > uint.MaxValue )
-            throw new Exception( "Limit exceeded!" );
+            throw new InvalidOperationException( "Limit exceeded!" );
 
         TableResizing_FullRehash( m * 2 );
         Insert( curr_key, curr_value );
@@ -150,11 +150,11 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
         TableResizing_FullRehash( Math.Max( 1, m / 2 ) );
     }
 
-    Tuple<bool, uint> search( TKey key ) {
+    (bool Found, uint Index) search( TKey key ) {
 
         var hash = GetHash( key );
 
-        var not_found = new Tuple<bool, uint>( false, 0 );
+        (bool Found, uint Index) not_found = ( false, 0 );
 
         for ( uint i = 0; i < arr.Length; i++ ) {
 
@@ -167,7 +167,7 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
                 continue;
 
             if ( EqualityComparer<TKey>.Default.Equals(arr[ hash_ex ].key,  key ) )
-                return new Tuple<bool, uint>( true, hash_ex );
+                return ( true, hash_ex );
         }
 
         return not_found;
@@ -206,9 +206,9 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
     uint DoProbe( TKey key, uint hash, uint i ) {
 
         return probing_method switch {
-            ProbingMethod.LINEAR_PROBING => LinearProbing(hash, i),
-            ProbingMethod.QUADRATIC_PROBING => QuadraticProbing(hash, i),
-            ProbingMethod.DOUBLE_HASHING => DoubleHashing(key, hash, i),
+            ProbingMethod.LinearProbing => LinearProbing(hash, i),
+            ProbingMethod.QuadraticProbing => QuadraticProbing(hash, i),
+            ProbingMethod.DoubleHashing => DoubleHashing(key, hash, i),
             _ => throw new InvalidOperationException("Must not hit into here!"),
         };
     }
@@ -220,8 +220,8 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
         TableHalfеning_FullRehash();
     }
 
-    void _insert( uint hash_ex, TKey key, TValue value, uint hash ) {
-        arr[ hash_ex ] =  new Record( key, value, hash );
+    void _insert( uint hash_ex, TKey key, TValue value ) {
+        arr[ hash_ex ] =  new Record( key, value );
         count_elements++;
     }
 }

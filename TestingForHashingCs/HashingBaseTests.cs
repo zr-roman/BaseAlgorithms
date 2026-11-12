@@ -6,7 +6,7 @@ namespace TestingForHashingCs
     /// <summary>Gives the tests access to the protected helpers of the Hashing base class.</summary>
     public sealed class HashingProbe<TKey> : HashTable<TKey, int>
     {
-        public HashingProbe() : base(HashMethod.UNIVERSAL_HASHING) { }
+        public HashingProbe() : base(HashMethod.UniversalHashing) { }
 
         public override void Insert(TKey key, int value) => throw new NotSupportedException();
         public override void Delete(TKey key) => throw new NotSupportedException();

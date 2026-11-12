@@ -2,7 +2,16 @@
 
 /// <summary>
 /// PERFECT HASHING
+/// Двухуровневое хеширование для заранее известного числа ключей: поиск за O(1) в худшем случае.
 /// </summary>
+/// <remarks>
+/// Ограничения:
+/// 1. Число ключей не может превышать заданное в конструкторе.
+/// 2. У всех ключей должны быть разные хеш-коды (GetHashCode). Таблица различает ключи по числу,
+///    полученному из хеш-кода, и два ключа с одинаковым числом на втором уровне развести невозможно.
+///    Для int, short, char и подобных типов это выполняется всегда. Для long, string, Guid
+///    совпадения возможны, например у long 1 и 1L &lt;&lt; 32.
+/// </remarks>
 /// <typeparam name="TKey">Тип ключа</typeparam>
 /// <typeparam name="TValue">Тип значения</typeparam>
 public class PerfectHashTable<TKey, TValue> : HashTable<TKey, TValue> {
@@ -10,7 +19,7 @@ public class PerfectHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 	private readonly int max_num_of_keys = 0;
     private const int AvgKeysPerSlot = 5;  // в среднем ключей на ячейку первого уровня
 
-    public PerfectHashTable( int max_num_of_keys ) : base( HashMethod.UNIVERSAL_HASHING ) {
+    public PerfectHashTable( int max_num_of_keys ) : base( HashMethod.UniversalHashing ) {
         ArgumentOutOfRangeException.ThrowIfNegative(max_num_of_keys);
 
         m = (uint)Math.Max(1, max_num_of_keys / AvgKeysPerSlot);
@@ -22,7 +31,9 @@ public class PerfectHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
 	public override void Insert( TKey key, TValue value ) {
 
-        if ( search( key ).Item1 )
+        ArgumentNullException.ThrowIfNull(key);
+
+        if ( search( key ).Found )
             throw new ArgumentException("Key duplicating is not allowed!");
 
         if (total_count >= max_num_of_keys)
@@ -50,13 +61,19 @@ public class PerfectHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 				break;
 
 			FullRehash2ndLevel( hash1, pars[ hash1 ].cnt_elms );
-			
-			// we do 100 tries before quitting
-			// we do this because perfect hashing is used only for predefined and not changing finite reasonable number of keys
-			// if the number of keys is varied or potentially infinite - then perfect hashing is not working and cannot be chosen for implementing
-			if ( counter > 100 )
-				throw new InvalidOperationException( "Not working! Set lesser number of keys!" );
 
+            // Второй уровень перестраивается со случайными a и b, пока новый ключ не попадёт в свободную ячейку.
+            // Для ключей с разными числами одна попытка неудачна с вероятностью не больше 1/2,
+            // поэтому 100 неудач подряд означают, что у нового ключа то же число, что и у ключа,
+            // который уже лежит в этой ячейке: их хеш-коды совпали.
+            if ( counter > 100 ) {
+                // ключ не вставлен: вернуть ячейку к прежнему числу элементов
+                FullRehash2ndLevel(hash1, pars[hash1].cnt_elms - 1);
+
+                throw new ArgumentException($"Key '{key}' has the same hash code as a key that is already in the table. " +
+					"Perfect hashing requires keys with distinct hash codes.",
+					nameof(key));
+			}
 			counter++;
 		}
 
@@ -67,9 +84,9 @@ public class PerfectHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
 	public override void Delete( TKey key ) {
 		var res = search( key );
-		if ( ! res.Item1 ) { return; }
-		var hash1 = res.Item2;
-		main_t[ hash1 ][ res.Item3 ] = null;
+		if ( ! res.Found ) { return; }
+		var hash1 = res.Index1;
+		main_t[ hash1 ][ res.Index2 ] = null;
 		FullRehash2ndLevel( hash1, pars[ hash1 ].cnt_elms - 1 );
         total_count--;
     }
@@ -78,9 +95,9 @@ public class PerfectHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
 		var r = search( key );
 
-		value = r.Item1 ? main_t[ r.Item2 ][ r.Item3 ].value : default;
+		value = r.Found ? main_t[ r.Index1 ][ r.Index2 ].value : default;
 
-		return r.Item1;
+		return r.Found;
 	}
 
 	struct Pars {
@@ -95,9 +112,9 @@ public class PerfectHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
 	int total_count = 0;
 
-	Tuple<bool, uint, uint> search( TKey key ) {
-		
-		var not_found_res = new Tuple<bool, uint, uint>( false, 0, 0);
+	private (bool Found, uint Index1, uint Index2) search( TKey key ) {
+
+        (bool Found, uint Index1, uint Index2) not_found_res = ( false, 0, 0 );
 
 		var hash1 = GetHash( key );
 
@@ -110,7 +127,7 @@ public class PerfectHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 			return not_found_res;
 
 		if ( EqualityComparer<TKey>.Default.Equals( main_t[ hash1 ][ hash2 ].key, key ) )
-			return new Tuple<bool, uint, uint>( true, hash1, hash2 );
+			return ( true, hash1, hash2 );
 
 		return not_found_res;
 		

@@ -7,11 +7,13 @@
 /// <typeparam name="Value">Тип значения</typeparam>
 public class ChainingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
-    public ChainingHashTable() : base( HashMethod.UNIVERSAL_HASHING ) {
+    public ChainingHashTable() : base( HashMethod.UniversalHashing ) {
         arr = new Record[ m ];
     }
 
     public override void Insert( TKey key, TValue value ) {
+
+        ArgumentNullException.ThrowIfNull(key);
 
         // проверить на дублирование ключа
         if ( CheckKeyExists( key ) )
