@@ -41,20 +41,20 @@ namespace TestingForHashingCs
         /// Deleted records must not make later operations slower.
         /// </summary>
         [TestMethod]
-        public void DicOpenAddr_ManyDeletesAndInserts_StayFast()
+        public void OpenAddressingHashTable_ManyDeletesAndInserts_StayFast()
         {
             const int live = 5000, rounds = 200_000;
             var t = new OpenAddressingHashTable<int, int>();
             for (int k = 0; k < live; k++) t.Insert(k, k);
 
-            RunWithinLimit("DicOpenAddr, delete one key and insert another (5000 keys in the table)", rounds, r =>
+            RunWithinLimit("OpenAddressingHashTable, delete one key and insert another (5000 keys in the table)", rounds, r =>
             {
                 t.Delete(r);
                 t.Insert(live + r, live + r);
             });
 
-            for (int k = rounds; k < rounds + live; k++) Assert.AreEqual(Tuple.Create(true, k), t.Search(k));
-            Assert.IsFalse(t.Search(0).Item1);
+            for (int k = rounds; k < rounds + live; k++) TableAssert.Found(t, k, k);
+            TableAssert.NotFound(t, 0);
         }
 
         /// <summary>
@@ -65,29 +65,29 @@ namespace TestingForHashingCs
         [DataTestMethod]
         [DataRow(16 * 4096 - 32)]
         [DataRow(17 * 4096 - 32)]
-        public void DicOpenAddr_SearchOfAbsentKeys_IsFastForAnyNumberOfKeys(int numberOfKeys)
+        public void OpenAddressingHashTable_SearchOfAbsentKeys_IsFastForAnyNumberOfKeys(int numberOfKeys)
         {
             var t = new OpenAddressingHashTable<int, int>();
             var keys = DistinctRandomKeys(numberOfKeys, seed: 3);
-            RunWithinLimit($"DicOpenAddr, insert {numberOfKeys} keys", keys.Length, i => t.Insert(keys[i], i));
+            RunWithinLimit($"OpenAddressingHashTable, insert {numberOfKeys} keys", keys.Length, i => t.Insert(keys[i], i));
 
             // keys are below int.MaxValue / 2, so these are absent
-            RunWithinLimit($"DicOpenAddr, search of absent keys ({numberOfKeys} keys in the table)", 300_000, i =>
+            RunWithinLimit($"OpenAddressingHashTable, search of absent keys ({numberOfKeys} keys in the table)", 300_000, i =>
             {
-                Assert.IsFalse(t.Search(int.MaxValue / 2 + 1 + i).Item1);
+                TableAssert.NotFound(t, int.MaxValue / 2 + 1 + i);
             });
         }
 
         /// <summary>The table must grow with the number of keys, otherwise the chains become long.</summary>
         [TestMethod]
-        public void DicChaining_ManyKeys_StayFast()
+        public void ChainingHashTable_ManyKeys_StayFast()
         {
             const int n = 300_000;
             var t = new ChainingHashTable<int, int>();
             var keys = DistinctRandomKeys(n, seed: 5);
 
-            RunWithinLimit("DicChaining, insert", n, i => t.Insert(keys[i], i));
-            RunWithinLimit("DicChaining, search", n, i => Assert.AreEqual(Tuple.Create(true, i), t.Search(keys[i])));
+            RunWithinLimit("ChainingHashTable, insert", n, i => t.Insert(keys[i], i));
+            RunWithinLimit("ChainingHashTable, search", n, i => TableAssert.Found(t, keys[i], i));
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace TestingForHashingCs
         /// each second-level table is rebuilt on every insert and takes (keys in the slot)^2 memory.
         /// </summary>
         [TestMethod]
-        public void DicPerfect_MoreKeysThanDeclared_AreRefusedOrStayFast()
+        public void PerfectHashTable_MoreKeysThanDeclared_AreRefusedOrStayFast()
         {
             const int declared = 100, n = 20_000;
             var t = new PerfectHashTable<int, int>(declared);
@@ -104,7 +104,7 @@ namespace TestingForHashingCs
 
             bool refused = false;
             int inserted = declared;
-            RunWithinLimit($"DicPerfect({declared}), insert of keys beyond the declared number", n - declared, i =>
+            RunWithinLimit($"PerfectHashTable({declared}), insert of keys beyond the declared number", n - declared, i =>
             {
                 if (refused) return;
                 try { t.Insert(declared + i, declared + i); inserted++; }
@@ -112,7 +112,7 @@ namespace TestingForHashingCs
             });
 
             // whatever the table chose, the keys it accepted must be there
-            for (int k = 0; k < inserted; k++) Assert.AreEqual(Tuple.Create(true, k), t.Search(k), $"Key {k}");
+            for (int k = 0; k < inserted; k++) TableAssert.Found(t, k, k, $"Key {k}");
         }
     }
 }

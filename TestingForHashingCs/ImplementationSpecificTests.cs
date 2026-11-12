@@ -6,7 +6,7 @@ namespace TestingForHashingCs
     // for a duplicate key, is in DictionaryContractTests.
 
     [TestClass]
-    public class DicOpenAddrTests
+    public class OpenAddressingHashTableTests
     {
         [TestMethod]
         [Timeout(20_000)]
@@ -14,12 +14,12 @@ namespace TestingForHashingCs
         {
             var t = new OpenAddressingHashTable<int, int>();
             for (int k = 0; k < 20_000; k++) t.Insert(k, k);
-            for (int k = 0; k < 20_000; k++) Assert.IsTrue(t.Search(k).Item1, $"Key {k} must be found");
+            for (int k = 0; k < 20_000; k++) Assert.IsTrue(t.Search(k, out _), $"Key {k} must be found");
         }
     }
 
     [TestClass]
-    public class DicPerfectTests
+    public class PerfectHashTableTests
     {
         /// <summary>The constructor computes m = max_num_of_keys / 5, which is 0 for fewer than 5 keys.</summary>
         [DataTestMethod]
@@ -31,7 +31,7 @@ namespace TestingForHashingCs
         {
             var t = new PerfectHashTable<int, int>(n);
             for (int k = 0; k < n; k++) t.Insert(k, k * 10);
-            for (int k = 0; k < n; k++) Assert.AreEqual(Tuple.Create(true, k * 10), t.Search(k));
+            for (int k = 0; k < n; k++) TableAssert.Found(t, k, k * 10);
         }
 
         [DataTestMethod]
@@ -46,7 +46,7 @@ namespace TestingForHashingCs
         {
             var t = new PerfectHashTable<int, int>(n);
             for (int k = 0; k < n; k++) t.Insert(k, k);
-            for (int k = 0; k < n; k++) Assert.AreEqual(Tuple.Create(true, k), t.Search(k), $"Key {k}");
+            for (int k = 0; k < n; k++) TableAssert.Found(t, k, k, $"Key {k}");
         }
 
         private static PerfectHashTable<int, string> FullTableOfThreeKeys()
@@ -70,10 +70,10 @@ namespace TestingForHashingCs
             Assert.ThrowsException<ArgumentException>(() => t.Insert(2, "again"), "Duplicate of key 2");
             Assert.ThrowsException<InvalidOperationException>(() => t.Insert(4, "d"), "The fourth key in a table for three");
 
-            Assert.AreEqual(Tuple.Create(true, "a"), t.Search(1));
-            Assert.AreEqual(Tuple.Create(true, "b"), t.Search(2));
-            Assert.AreEqual(Tuple.Create(true, "c"), t.Search(3));
-            Assert.IsFalse(t.Search(4).Item1);
+            TableAssert.Found(t, 1, "a");
+            TableAssert.Found(t, 2, "b");
+            TableAssert.Found(t, 3, "c");
+            TableAssert.NotFound(t, 4);
         }
 
         /// <summary>Delete frees a place: the limit is on the number of keys in the table, not on the number of inserts.</summary>
@@ -85,8 +85,8 @@ namespace TestingForHashingCs
             t.Delete(2);
             t.Insert(4, "d");
 
-            Assert.AreEqual(Tuple.Create(true, "d"), t.Search(4));
-            Assert.IsFalse(t.Search(2).Item1);
+            TableAssert.Found(t, 4, "d");
+            TableAssert.NotFound(t, 2);
             Assert.ThrowsException<InvalidOperationException>(() => t.Insert(5, "e"), "The table is full again");
         }
     }

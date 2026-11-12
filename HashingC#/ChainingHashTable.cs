@@ -40,9 +40,10 @@ public class ChainingHashTable<TKey, TValue> : Hashing<TKey, TValue> {
     }
 
     // Поиск по ключу
-    public override Tuple<bool, TValue> Search( TKey key ) {
+    public override bool Search( TKey key, out TValue value ) {
         var item = GetChainItem( key ).Curr;
-        return item == null ? new Tuple<bool, TValue>( false, default ) : new Tuple<bool, TValue>( true, item.value );
+        value = item is null ? default : item.value;
+        return item is not null;
     }
 
     // Удаление по ключу

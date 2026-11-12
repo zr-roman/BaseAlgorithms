@@ -4,7 +4,7 @@ public abstract class Hashing<TKey, TValue> {
 
     public abstract void Insert( TKey key, TValue value );
     public abstract void Delete( TKey key );
-    public abstract Tuple<bool, TValue> Search( TKey key );
+    public abstract bool Search( TKey key, out TValue value );
 
     protected Hashing( HashMethod hm = HashMethod.DIVISION ) {
 
@@ -18,14 +18,11 @@ public abstract class Hashing<TKey, TValue> {
         }
     }
 
-    protected class Record_Base {
-        public readonly TKey key;
-        public readonly TValue value;
-        public Record_Base( TKey key, TValue value ) {
-            this.key = key;
-            this.value = value;
-        }
-	}
+    protected class Record_Base(TKey key, TValue value)
+    {
+        public readonly TKey key = key;
+        public readonly TValue value = value;
+    }
 
     protected enum HashMethod {
         DIVISION,
@@ -49,7 +46,7 @@ public abstract class Hashing<TKey, TValue> {
             HashMethod.DIVISION          => HashFuncDivision( key ),
             HashMethod.MULTIPLICATION    => HashFuncMultiplication( key ),
             HashMethod.UNIVERSAL_HASHING => HashFuncUniversal( key, a_par, b_par, m_par ),
-            _ => throw new Exception( "Must not hit into here!" ),
+            _ => throw new InvalidOperationException( "Must not hit into here!" ),
         };
     }
 

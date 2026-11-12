@@ -4,12 +4,12 @@ namespace TestingForHashingCs
 {
     /// <summary>
     /// Common behaviour of every hash table: it must work like a Dictionary.
-    /// The test methods are inherited by DicChainingContract, DicOpenAddrContract and DicPerfectContract,
+    /// The test methods are inherited by ChainingHashTableContract, OpenAddressingHashTableContract and PerfectHashTableContract,
     /// so every test runs once for each implementation.
     /// </summary>
     public abstract class DictionaryContractTests
     {
-        /// <summary>Capacity passed to DicPerfect; the other tables ignore it.</summary>
+        /// <summary>Capacity passed to PerfectHashTable; the other tables ignore it.</summary>
         protected const int Capacity = 1000;
 
         protected abstract Hashing<int, string> CreateIntTable();
@@ -30,14 +30,12 @@ namespace TestingForHashingCs
 
         private static void AssertFound<TKey, TValue>(Hashing<TKey, TValue> table, TKey key, TValue expected)
         {
-            var r = table.Search(key);
-            Assert.IsTrue(r.Item1, $"Key {key} must be found");
-            Assert.AreEqual(expected, r.Item2, $"Wrong value for key {key}");
+            TableAssert.Found(table, key, expected);
         }
 
         private static void AssertNotFound<TKey, TValue>(Hashing<TKey, TValue> table, TKey key)
         {
-            Assert.IsFalse(table.Search(key).Item1, $"Key {key} must not be found");
+            TableAssert.NotFound(table, key);
         }
 
         /// <summary>
@@ -220,10 +218,10 @@ namespace TestingForHashingCs
                         reference.Remove(k);
                         break;
                     default:
-                        var r = t.Search(k);
+                        bool found = t.Search(k, out var actual);
                         bool expected = reference.TryGetValue(k, out var value);
-                        Assert.AreEqual(expected, r.Item1, $"Operation #{op}: Search({k}) found = {r.Item1}, expected {expected}");
-                        if (expected) Assert.AreEqual(value, r.Item2, $"Operation #{op}: Search({k}) returned a wrong value");
+                        Assert.AreEqual(expected, found, $"Operation #{op}: Search({k}) found = {found}, expected {expected}");
+                        Assert.AreEqual(value, actual, $"Operation #{op}: Search({k}) returned a wrong value");
                         break;
                 }
             }
@@ -258,7 +256,7 @@ namespace TestingForHashingCs
     }
 
     [TestClass]
-    public class DicChainingContract : DictionaryContractTests
+    public class ChainingHashTableContract : DictionaryContractTests
     {
         protected override Hashing<int, string> CreateIntTable() => new ChainingHashTable<int, string>();
         protected override Hashing<string, int> CreateStringTable() => new ChainingHashTable<string, int>();
@@ -266,15 +264,33 @@ namespace TestingForHashingCs
     }
 
     [TestClass]
-    public class DicOpenAddrContract : DictionaryContractTests
+    public class OpenAddressingHashTableContract : DictionaryContractTests
     {
         protected override Hashing<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>();
         protected override Hashing<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>();
         protected override Hashing<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>();
     }
 
+    /// <summary>The same tests for open addressing with linear probing (the default is quadratic).</summary>
     [TestClass]
-    public class DicPerfectContract : DictionaryContractTests
+    public class OpenAddressingLinearProbingContract : DictionaryContractTests
+    {
+        protected override Hashing<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>(ProbingMethod.LINEAR_PROBING);
+        protected override Hashing<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>(ProbingMethod.LINEAR_PROBING);
+        protected override Hashing<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>(ProbingMethod.LINEAR_PROBING);
+    }
+
+    /// <summary>The same tests for open addressing with double hashing.</summary>
+    [TestClass]
+    public class OpenAddressingDoubleHashingContract : DictionaryContractTests
+    {
+        protected override Hashing<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>(ProbingMethod.DOUBLE_HASHING);
+        protected override Hashing<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>(ProbingMethod.DOUBLE_HASHING);
+        protected override Hashing<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>(ProbingMethod.DOUBLE_HASHING);
+    }
+
+    [TestClass]
+    public class PerfectHashTableContract : DictionaryContractTests
     {
         protected override Hashing<int, string> CreateIntTable() => new PerfectHashTable<int, string>(Capacity);
         protected override Hashing<string, int> CreateStringTable() => new PerfectHashTable<string, int>(Capacity);

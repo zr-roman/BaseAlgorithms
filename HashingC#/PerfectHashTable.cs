@@ -7,7 +7,7 @@
 /// <typeparam name="TValue">Тип значения</typeparam>
 public class PerfectHashTable<TKey, TValue> : Hashing<TKey, TValue> {
 
-	private int max_num_of_keys = 0;
+	private readonly int max_num_of_keys = 0;
     private const int AvgKeysPerSlot = 5;  // в среднем ключей на ячейку первого уровня
 
     public PerfectHashTable( int max_num_of_keys ) : base( HashMethod.UNIVERSAL_HASHING ) {
@@ -22,7 +22,7 @@ public class PerfectHashTable<TKey, TValue> : Hashing<TKey, TValue> {
 
 	public override void Insert( TKey key, TValue value ) {
 
-        if ( Search( key ).Item1 )
+        if ( search( key ).Item1 )
             throw new ArgumentException("Key duplicating is not allowed!");
 
         if (total_count >= max_num_of_keys)
@@ -55,7 +55,7 @@ public class PerfectHashTable<TKey, TValue> : Hashing<TKey, TValue> {
 			// we do this because perfect hashing is used only for predefined and not changing finite reasonable number of keys
 			// if the number of keys is varied or potentially infinite - then perfect hashing is not working and cannot be chosen for implementing
 			if ( counter > 100 )
-				throw new Exception( "Not wokring! Set lesser number of keys!" );
+				throw new InvalidOperationException( "Not working! Set lesser number of keys!" );
 
 			counter++;
 		}
@@ -74,14 +74,13 @@ public class PerfectHashTable<TKey, TValue> : Hashing<TKey, TValue> {
         total_count--;
     }
 
-	public override Tuple<bool, TValue> Search( TKey key) {
+	public override bool Search( TKey key, out TValue value ) {
 
 		var r = search( key );
-		
-		if ( !r.Item1 )
-			return new Tuple<bool, TValue>( false, default );
 
-		return new Tuple<bool, TValue>( true, main_t[ r.Item2 ][ r.Item3 ].value );
+		value = r.Item1 ? main_t[ r.Item2 ][ r.Item3 ].value : default;
+
+		return r.Item1;
 	}
 
 	struct Pars {

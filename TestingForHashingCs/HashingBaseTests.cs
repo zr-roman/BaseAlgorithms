@@ -10,7 +10,7 @@ namespace TestingForHashingCs
 
         public override void Insert(TKey key, int value) => throw new NotSupportedException();
         public override void Delete(TKey key) => throw new NotSupportedException();
-        public override Tuple<bool, int> Search(TKey key) => throw new NotSupportedException();
+        public override bool Search(TKey key, out int value) => throw new NotSupportedException();
 
         public uint NumericRepresentation(TKey key) => GetNumericRepresentationOfKey(key);
         public uint RandomUInt(uint start, uint end) => GenerateRandomUInt(start, end);

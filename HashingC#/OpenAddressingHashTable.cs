@@ -1,15 +1,24 @@
 ﻿namespace HashTables;
 
+public enum ProbingMethod
+{
+    LINEAR_PROBING,
+    QUADRATIC_PROBING,
+    DOUBLE_HASHING
+}
+
 /// <summary>
 /// OPEN ADDRESSING 
 /// </summary>
 /// <typeparam name="TKey">Тип ключа</typeparam>
 /// <typeparam name="TValue">Тип значения</typeparam>
 public class OpenAddressingHashTable<TKey, TValue> : Hashing<TKey, TValue> {
-        
-    public OpenAddressingHashTable() : base(HashMethod.UNIVERSAL_HASHING) {
+
+    public OpenAddressingHashTable( ProbingMethod probingMethod = ProbingMethod.QUADRATIC_PROBING )
+            : base( HashMethod.UNIVERSAL_HASHING ) {
+        m = 16;
         arr = new Record[ m ];
-        probing_method = ProbingMethod.QUADRATIC_PROBING;
+        this.probing_method = probingMethod;
         count_elements = 0;
     }
 
@@ -60,19 +69,20 @@ public class OpenAddressingHashTable<TKey, TValue> : Hashing<TKey, TValue> {
             _delete( search_res.Item2 );
     }
 
-    public override Tuple<bool, TValue> Search( TKey key ) {
+    public override bool Search( TKey key, out TValue value ) {
 
         var search_res = search( key );
 
-        if ( !search_res.Item1 )
-            return new Tuple<bool, TValue>( false, default );
+        value = search_res.Item1 ? arr[ search_res.Item2 ].value : default;
 
-        return new Tuple<bool, TValue>( true, arr[ search_res.Item2 ].value );
+        return search_res.Item1;
     }
-    
+
     // constants for quadratic probing
-    const double c1 = 1.5;
-    const double c2 = 1.5;
+    // h(k, i) = ( h(k) + c1*i + c2*i*i ) mod m,  где c1 = C1 / DEN, c2 = C2 / DEN
+    const ulong C1 = 3;   // c1 = 3/2
+    const ulong C2 = 3;   // c2 = 3/2
+    const ulong DEN = 2;
 
     TKey curr_key;
     TValue curr_value;
@@ -80,12 +90,6 @@ public class OpenAddressingHashTable<TKey, TValue> : Hashing<TKey, TValue> {
     uint count_elements; // всего элементов со значениями
 
     uint total_deleted; // всего элементов помеченных как удаленные
-
-    private enum ProbingMethod {
-        LINEAR_PROBING,
-        QUADRATIC_PROBING,
-        DOUBLE_HASHING
-    };
 
     readonly ProbingMethod probing_method;
 
@@ -107,13 +111,21 @@ public class OpenAddressingHashTable<TKey, TValue> : Hashing<TKey, TValue> {
                 continue;
 
             var hash = GetHash( arr[ i ].key );
-            for ( uint j = 0; true; j++ ) {
+            bool placed = false;
+            for ( uint j = 0; j < m; j++ ) {
                 var hash_ex = DoProbe( arr[ i ].key, hash, j );
                 if ( new_arr[ hash_ex ] is null ) {
                     arr[ i ].hash = hash;
                     new_arr[ hash_ex ] = arr[ i ];
+                    placed = true;
                     break;
                 }
+            }
+
+            if (!placed)
+            {
+                m = (uint)arr.Length;                     // вернуть прежний размер: старая таблица ещё цела
+                throw new InvalidOperationException("Rehash failed: the probe sequence found no free slot");
             }
         }
 
@@ -178,7 +190,7 @@ public class OpenAddressingHashTable<TKey, TValue> : Hashing<TKey, TValue> {
     /// <param name="i"></param>
     /// <returns></returns>
     uint QuadraticProbing( uint hash, uint i ) {
-        return (uint)( hash + c1 * i + c2 * i * i ) % m;
+         return (uint)( ( hash + ( C1 * i + C2 * i * i ) / DEN ) % m );
     }
 
     /// <summary>
@@ -187,7 +199,8 @@ public class OpenAddressingHashTable<TKey, TValue> : Hashing<TKey, TValue> {
     /// </summary>
     /// <returns></returns>
     uint DoubleHashing( TKey key, uint hash, uint i ) {
-        return ( hash + i * HashFuncMultiplication( key ) ) % m;
+        uint step = HashFuncMultiplication( key ) | 1; // нечётный шаг взаимно прост с m = 2^k
+        return ( hash + i * step ) % m;
     }
 
     uint DoProbe( TKey key, uint hash, uint i ) {
@@ -196,7 +209,7 @@ public class OpenAddressingHashTable<TKey, TValue> : Hashing<TKey, TValue> {
             ProbingMethod.LINEAR_PROBING => LinearProbing(hash, i),
             ProbingMethod.QUADRATIC_PROBING => QuadraticProbing(hash, i),
             ProbingMethod.DOUBLE_HASHING => DoubleHashing(key, hash, i),
-            _ => throw new Exception("Must not hit into here!"),
+            _ => throw new InvalidOperationException("Must not hit into here!"),
         };
     }
 

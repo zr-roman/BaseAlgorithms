@@ -37,13 +37,13 @@ namespace TestingForHashingCs
             t.Insert(lower, "lower");
             t.Insert(upper, "upper");
 
-            Assert.AreEqual(Tuple.Create(true, "lower"), t.Search(lower), "Key \"abc\"");
-            Assert.AreEqual(Tuple.Create(true, "upper"), t.Search(upper), "Key \"ABC\" is a different key: Equals returns false");
+            TableAssert.Found(t, lower, "lower", "Key \"abc\"");
+            TableAssert.Found(t, upper, "upper", "Key \"ABC\" is a different key: Equals returns false");
         }
 
         /// <summary>Equal hash codes put both keys onto the same probe sequence.</summary>
         [TestMethod]
-        public void DicOpenAddr_KeysEqualOnlyByCompareTo_AreDifferentKeys()
+        public void OpenAddressingHashTable_KeysEqualOnlyByCompareTo_AreDifferentKeys()
         {
             AssertBothKeysAreStored(new OpenAddressingHashTable<CaseKey, string>(), new CaseKey("abc", 1), new CaseKey("ABC", 1));
         }
@@ -54,20 +54,20 @@ namespace TestingForHashingCs
         /// perfect hashing cannot separate keys with equal numbers.
         /// </summary>
         [TestMethod]
-        public void DicPerfect_KeysEqualOnlyByCompareTo_AreDifferentKeys()
+        public void PerfectHashTable_KeysEqualOnlyByCompareTo_AreDifferentKeys()
         {
             AssertBothKeysAreStored(new PerfectHashTable<CaseKey, string>(2), new CaseKey("abc", 1), new CaseKey("ABC", 2));
         }
 
-        /// <summary>DicChaining already compares with Equals; the test keeps it that way.</summary>
+        /// <summary>ChainingHashTable already compares with Equals; the test keeps it that way.</summary>
         [TestMethod]
-        public void DicChaining_KeysEqualOnlyByCompareTo_AreDifferentKeys()
+        public void ChainingHashTable_KeysEqualOnlyByCompareTo_AreDifferentKeys()
         {
             AssertBothKeysAreStored(new ChainingHashTable<CaseKey, string>(), new CaseKey("abc", 1), new CaseKey("ABC", 1));
         }
 
         [TestMethod]
-        public void DicOpenAddr_DeletingOneOfSuchKeys_KeepsTheOther()
+        public void OpenAddressingHashTable_DeletingOneOfSuchKeys_KeepsTheOther()
         {
             var t = new OpenAddressingHashTable<CaseKey, string>();
             var lower = new CaseKey("abc", 1);
@@ -77,8 +77,8 @@ namespace TestingForHashingCs
 
             t.Delete(upper);
 
-            Assert.AreEqual(Tuple.Create(true, "lower"), t.Search(lower));
-            Assert.IsFalse(t.Search(upper).Item1);
+            TableAssert.Found(t, lower, "lower");
+            TableAssert.NotFound(t, upper);
         }
     }
 }
