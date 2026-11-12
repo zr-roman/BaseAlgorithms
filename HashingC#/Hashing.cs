@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿namespace HashTables;
 
 public abstract class Hashing<TKey, TValue> {
 
@@ -68,36 +67,20 @@ public abstract class Hashing<TKey, TValue> {
     }
 
     uint HashFuncUniversal( TKey key, uint? a_par = null, uint? b_par = null, uint? m_par = null ) {
-        
-        if ( !a_par.HasValue ) { a_par = a; }
-        if ( !b_par.HasValue ) { b_par = b; }
-        if ( !m_par.HasValue ) { m_par = m; }
+
+        ulong a_val = a_par ?? a;
+        ulong b_val = b_par ?? b;
+        ulong m_val = m_par ?? m;
 
         // key in range of 0 ... UINT_MAX
-        long p = 4294967311; // the nearest following prime to UINT_MAX
-        var number = GetNumericRepresentationOfKey( key );
-        uint res = (uint)((uint) ( ( (long)a_par * number + (long)b_par ) % p) % m_par); // this is: ((a*k + b) mod p) mod m;
+        const ulong p = 4294967311; // the nearest following prime to UINT_MAX
+        ulong number = GetNumericRepresentationOfKey( key );
+        uint res = (uint)( ( a_val * number + b_val ) % p % m_val); // this is: ((a*k + b) mod p) mod m;
         return res;
     }
     
     protected uint GetNumericRepresentationOfKey( TKey key ) {
-        var str = key.ToString();
-        uint res = 1;
-        for ( int i = 0; i < str.Length; i++ ) {
-            if ( i % 2 == 0 ) {
-                res = ( res + 1 ) * str[ i ];
-                continue;
-            }
-            res = ( res + 1 ) * str[ i ] * str[ i ];
-        }
-        for ( int i = str.Length - 1; i >= 0; i-- ) {
-            if ( i % 2 == 0 ) {
-                res = ( res + 1 ) * str[ i ] * str[ i ];
-                continue;
-            }
-            res = (res + 1) * str[ i ];
-        }
-        return res;
+        return unchecked((uint)EqualityComparer<TKey>.Default.GetHashCode(key));
     }
 
     protected uint GenerateRandomUInt( uint start, uint end ) {

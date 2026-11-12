@@ -1,46 +1,18 @@
+using HashTables;
+
 namespace TestingForHashingCs
 {
-    /// <summary>Behaviour that differs between the tables: what a duplicate key does, capacity limits.</summary>
-    [TestClass]
-    public class DicChainingTests
-    {
-        /// <summary>DicChaining.Insert throws "Key duplicating is not allowed!" for an existing key.</summary>
-        [TestMethod]
-        public void DuplicateOfTheOnlyKey_Throws()
-        {
-            var t = new DicChaining<int, string>();
-            t.Insert(1, "one");
-            Assert.ThrowsException<Exception>(() => t.Insert(1, "uno"));
-        }
-
-        [TestMethod]
-        public void DuplicateOfAnyKey_Throws()
-        {
-            var t = new DicChaining<int, string>();
-            for (int k = 0; k < 100; k++) t.Insert(k, "v" + k);
-            for (int k = 0; k < 100; k++)
-                Assert.ThrowsException<Exception>(() => t.Insert(k, "dup"), $"Duplicate of key {k} was accepted");
-        }
-    }
+    // Behaviour that is specific to one table. What all tables have in common, including the error
+    // for a duplicate key, is in DictionaryContractTests.
 
     [TestClass]
     public class DicOpenAddrTests
     {
-        /// <summary>DicOpenAddr.Insert ignores an existing key and keeps the first value.</summary>
-        [TestMethod]
-        public void DuplicateKey_KeepsFirstValue()
-        {
-            var t = new DicOpenAddr<int, string>();
-            t.Insert(1, "one");
-            t.Insert(1, "uno");
-            Assert.AreEqual("one", t.Search(1).Item2);
-        }
-
         [TestMethod]
         [Timeout(20_000)]
         public void TwentyThousandKeys_AreAllFound()
         {
-            var t = new DicOpenAddr<int, int>();
+            var t = new OpenAddressingHashTable<int, int>();
             for (int k = 0; k < 20_000; k++) t.Insert(k, k);
             for (int k = 0; k < 20_000; k++) Assert.IsTrue(t.Search(k).Item1, $"Key {k} must be found");
         }
@@ -57,31 +29,65 @@ namespace TestingForHashingCs
         [DataRow(4)]
         public void SmallCapacity_Works(int n)
         {
-            var t = new DicPerfect<int, int>(n);
+            var t = new PerfectHashTable<int, int>(n);
             for (int k = 0; k < n; k++) t.Insert(k, k * 10);
             for (int k = 0; k < n; k++) Assert.AreEqual(Tuple.Create(true, k * 10), t.Search(k));
         }
 
         [DataTestMethod]
         [DataRow(10)]
-        [DataRow(1000)]
+        [DataRow(1_000)]
+        [DataRow(5_000)]
+        [DataRow(10_000)]
+        [DataRow(15_000)]
         [DataRow(20_000)]
         [Timeout(60_000)]
         public void TableFilledToCapacity_FindsAllKeys(int n)
         {
-            var t = new DicPerfect<int, int>(n);
+            var t = new PerfectHashTable<int, int>(n);
             for (int k = 0; k < n; k++) t.Insert(k, k);
             for (int k = 0; k < n; k++) Assert.AreEqual(Tuple.Create(true, k), t.Search(k), $"Key {k}");
         }
 
-        /// <summary>DicPerfect.Insert ignores an existing key and keeps the first value.</summary>
-        [TestMethod]
-        public void DuplicateKey_KeepsFirstValue()
+        private static PerfectHashTable<int, string> FullTableOfThreeKeys()
         {
-            var t = new DicPerfect<int, string>(100);
-            t.Insert(1, "one");
-            t.Insert(1, "uno");
-            Assert.AreEqual("one", t.Search(1).Item2);
+            var t = new PerfectHashTable<int, string>(3);
+            t.Insert(1, "a");
+            t.Insert(2, "b");
+            t.Insert(3, "c");
+            return t;
+        }
+
+        /// <summary>
+        /// A full table has two different errors: a key that is already there is a duplicate (ArgumentException),
+        /// a new key does not fit (InvalidOperationException). Neither of them changes the table.
+        /// </summary>
+        [TestMethod]
+        public void FullTable_RejectsDuplicateAndNewKeyWithDifferentErrors()
+        {
+            var t = FullTableOfThreeKeys();
+
+            Assert.ThrowsException<ArgumentException>(() => t.Insert(2, "again"), "Duplicate of key 2");
+            Assert.ThrowsException<InvalidOperationException>(() => t.Insert(4, "d"), "The fourth key in a table for three");
+
+            Assert.AreEqual(Tuple.Create(true, "a"), t.Search(1));
+            Assert.AreEqual(Tuple.Create(true, "b"), t.Search(2));
+            Assert.AreEqual(Tuple.Create(true, "c"), t.Search(3));
+            Assert.IsFalse(t.Search(4).Item1);
+        }
+
+        /// <summary>Delete frees a place: the limit is on the number of keys in the table, not on the number of inserts.</summary>
+        [TestMethod]
+        public void FullTable_AcceptsNewKeyAfterDelete()
+        {
+            var t = FullTableOfThreeKeys();
+
+            t.Delete(2);
+            t.Insert(4, "d");
+
+            Assert.AreEqual(Tuple.Create(true, "d"), t.Search(4));
+            Assert.IsFalse(t.Search(2).Item1);
+            Assert.ThrowsException<InvalidOperationException>(() => t.Insert(5, "e"), "The table is full again");
         }
     }
 }

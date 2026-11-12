@@ -1,3 +1,5 @@
+using HashTables;
+
 namespace TestingForHashingCs
 {
     /// <summary>
@@ -36,6 +38,49 @@ namespace TestingForHashingCs
         private static void AssertNotFound<TKey, TValue>(Hashing<TKey, TValue> table, TKey key)
         {
             Assert.IsFalse(table.Search(key).Item1, $"Key {key} must not be found");
+        }
+
+        /// <summary>
+        /// Insert of a key that is already in the table is an error: every table throws
+        /// ArgumentException("Key duplicating is not allowed!"). If the type of the exception changes, change it here.
+        /// </summary>
+        private static void AssertDuplicateIsRejected(Hashing<int, string> table, int key)
+        {
+            Assert.ThrowsException<ArgumentException>(() => table.Insert(key, "duplicate"), $"Duplicate of key {key} was accepted");
+        }
+
+        [TestMethod]
+        public void DuplicateOfTheOnlyKey_Throws()
+        {
+            var t = CreateIntTable();
+            t.Insert(1, "one");
+            AssertDuplicateIsRejected(t, 1);
+        }
+
+        [TestMethod]
+        public void DuplicateOfAnyKey_Throws()
+        {
+            var t = CreateIntTable();
+            for (int k = 0; k < 100; k++) t.Insert(k, "v" + k);
+            for (int k = 0; k < 100; k++) AssertDuplicateIsRejected(t, k);
+        }
+
+        [TestMethod]
+        public void RejectedDuplicate_LeavesTheTableUnchanged()
+        {
+            var t = CreateIntTable();
+            for (int k = 0; k < 100; k++) t.Insert(k, "v" + k);
+            for (int k = 0; k < 100; k++) AssertDuplicateIsRejected(t, k);
+
+            for (int k = 0; k < 100; k++) AssertFound(t, k, "v" + k);
+
+            // the table keeps working after the errors
+            t.Delete(50);
+            AssertNotFound(t, 50);
+            t.Insert(50, "new");
+            AssertFound(t, 50, "new");
+            t.Insert(100, "v100");
+            AssertFound(t, 100, "v100");
         }
 
         [TestMethod]
@@ -205,34 +250,34 @@ namespace TestingForHashingCs
         {
             var t = CreateIntTable();
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-            for (int k = -40; k < 0; k++) t.Insert(k, "v" + k);
+            for (int k = -40; k < 0; k++) t.Insert(k, "v" + (k + 40));  // not "v" + k: under sv-SE it is formatted with another minus sign
 
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("sv-SE");
-            for (int k = -40; k < 0; k++) AssertFound(t, k, "v" + k);
+            for (int k = -40; k < 0; k++) AssertFound(t, k, "v" + (k + 40));
         }
     }
 
     [TestClass]
     public class DicChainingContract : DictionaryContractTests
     {
-        protected override Hashing<int, string> CreateIntTable() => new DicChaining<int, string>();
-        protected override Hashing<string, int> CreateStringTable() => new DicChaining<string, int>();
-        protected override Hashing<double, string> CreateDoubleTable() => new DicChaining<double, string>();
+        protected override Hashing<int, string> CreateIntTable() => new ChainingHashTable<int, string>();
+        protected override Hashing<string, int> CreateStringTable() => new ChainingHashTable<string, int>();
+        protected override Hashing<double, string> CreateDoubleTable() => new ChainingHashTable<double, string>();
     }
 
     [TestClass]
     public class DicOpenAddrContract : DictionaryContractTests
     {
-        protected override Hashing<int, string> CreateIntTable() => new DicOpenAddr<int, string>();
-        protected override Hashing<string, int> CreateStringTable() => new DicOpenAddr<string, int>();
-        protected override Hashing<double, string> CreateDoubleTable() => new DicOpenAddr<double, string>();
+        protected override Hashing<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>();
+        protected override Hashing<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>();
+        protected override Hashing<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>();
     }
 
     [TestClass]
     public class DicPerfectContract : DictionaryContractTests
     {
-        protected override Hashing<int, string> CreateIntTable() => new DicPerfect<int, string>(Capacity);
-        protected override Hashing<string, int> CreateStringTable() => new DicPerfect<string, int>(Capacity);
-        protected override Hashing<double, string> CreateDoubleTable() => new DicPerfect<double, string>(Capacity);
+        protected override Hashing<int, string> CreateIntTable() => new PerfectHashTable<int, string>(Capacity);
+        protected override Hashing<string, int> CreateStringTable() => new PerfectHashTable<string, int>(Capacity);
+        protected override Hashing<double, string> CreateDoubleTable() => new PerfectHashTable<double, string>(Capacity);
     }
 }

@@ -1,3 +1,4 @@
+using HashTables;
 using System.Numerics;
 
 namespace TestingForHashingCs
@@ -63,7 +64,8 @@ namespace TestingForHashingCs
         {
             var p = new HashingProbe<int>();
             BigInteger prime = 4294967311;
-            for (int key = 0; key < 1000; key++)
+            // Negative keys too: their numeric representation is large whatever the prehash is.
+            for (int key = -500; key < 500; key++)
             {
                 BigInteger k = p.NumericRepresentation(key);
                 var expected = (uint)(((a * k + b) % prime) % m);

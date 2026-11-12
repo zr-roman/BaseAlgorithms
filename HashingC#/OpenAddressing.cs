@@ -1,13 +1,13 @@
-﻿using System;
+﻿namespace HashTables;
 
 /// <summary>
 /// OPEN ADDRESSING 
 /// </summary>
 /// <typeparam name="TKey">Тип ключа</typeparam>
 /// <typeparam name="TValue">Тип значения</typeparam>
-public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComparable {
+public class OpenAddressingHashTable<TKey, TValue> : Hashing<TKey, TValue> {
         
-    public DicOpenAddr() {
+    public OpenAddressingHashTable() : base(HashMethod.UNIVERSAL_HASHING) {
         arr = new Record[ m ];
         probing_method = ProbingMethod.QUADRATIC_PROBING;
         count_elements = 0;
@@ -15,7 +15,8 @@ public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComp
 
     public override void Insert( TKey key, TValue value ) {
 
-        if ( search( key ).Item1 ) { return; }
+        if ( search( key ).Item1 )
+            throw new ArgumentException("Key duplicating is not allowed!");
 
         void func() {
             curr_key = key;
@@ -23,7 +24,14 @@ public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComp
             TableDoubling_FullRehash_And_CallInsert();
         }
 
-        if ( count_elements == arr.Length ) { func(); return; }
+        if ( count_elements + total_deleted >= arr.Length / 2 ) {
+            if (count_elements >= arr.Length / 4)
+            {
+                func(); // живых ключей много - удвоить таблицу
+                return;
+            }
+            TableResizing_FullRehash(m); // место заняли удалённые записи - пересобрать в том же размере
+        }
 
         var hash = GetHash( key );
 
@@ -31,31 +39,34 @@ public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComp
         for ( uint i = 0; i < arr.Length; i++ ) {
             var hash_ex = DoProbe( key, hash, i );
             if ( arr[ hash_ex ] == null || arr[ hash_ex ].deleted ) {
+                if (arr[ hash_ex ] != null)
+                    total_deleted--; // удалённая запись заменяется живой
+
                 _insert( hash_ex, key, value, hash );
                 done = true;
                 break;
             }
         }
 
-        if ( !done ) { func(); }
+        if ( !done )
+            func();
     }
 
     public override void Delete( TKey key ) {
 
         var search_res = search( key );
 
-        if ( search_res.Item1 ) {
+        if ( search_res.Item1 )
             _delete( search_res.Item2 );
-        }
     }
 
     public override Tuple<bool, TValue> Search( TKey key ) {
 
         var search_res = search( key );
 
-        if ( !search_res.Item1 ) {
+        if ( !search_res.Item1 )
             return new Tuple<bool, TValue>( false, default );
-        }
+
         return new Tuple<bool, TValue>( true, arr[ search_res.Item2 ].value );
     }
     
@@ -66,7 +77,9 @@ public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComp
     TKey curr_key;
     TValue curr_value;
 
-    uint count_elements;
+    uint count_elements; // всего элементов со значениями
+
+    uint total_deleted; // всего элементов помеченных как удаленные
 
     private enum ProbingMethod {
         LINEAR_PROBING,
@@ -76,16 +89,12 @@ public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComp
 
     readonly ProbingMethod probing_method;
 
-	class Record : Record_Base {
-        public uint hash;
-        public bool deleted;
-        public Record( TKey key, TValue value, uint hash ) : base( key, value ) {
-            deleted = false;
-            this.hash = hash;
-        }
-	};
+	class Record(TKey key, TValue value, uint hash) : Record_Base( key, value ) {
+        public uint hash = hash;
+        public bool deleted = false;
+    };
 
-    Record[] arr;  // main table
+    Record[] arr; // main table
 
     private void TableResizing_FullRehash( uint new_size ) {
 
@@ -94,12 +103,13 @@ public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComp
 
         for ( uint i = 0; i < arr.Length; i++ ) {
             
-            if ( arr[ i ] == null || arr[ i ].deleted ) { continue; }
+            if ( arr[ i ] is null || arr[ i ].deleted )
+                continue;
 
             var hash = GetHash( arr[ i ].key );
             for ( uint j = 0; true; j++ ) {
                 var hash_ex = DoProbe( arr[ i ].key, hash, j );
-                if ( new_arr[ hash_ex ] == null ) {
+                if ( new_arr[ hash_ex ] is null ) {
                     arr[ i ].hash = hash;
                     new_arr[ hash_ex ] = arr[ i ];
                     break;
@@ -107,24 +117,25 @@ public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComp
             }
         }
 
+        total_deleted = 0;
         arr = new_arr;
     }
 
     void TableDoubling_FullRehash_And_CallInsert( ) {
         long t = m;
         long tmp = t * 2;
-        if ( tmp > uint.MaxValue ) {
+        if ( tmp > uint.MaxValue )
             throw new Exception( "Limit exceeded!" );
-        }
+
         TableResizing_FullRehash( m * 2 );
         Insert( curr_key, curr_value );
     }
 
     void TableHalfеning_FullRehash() {
-        if ( count_elements > arr.Length / 4 ) {
+        if ( count_elements > arr.Length / 8 )
             return;
-        }
-        TableResizing_FullRehash( m / 2 );
+
+        TableResizing_FullRehash( Math.Max( 1, m / 2 ) );
     }
 
     Tuple<bool, uint> search( TKey key ) {
@@ -137,17 +148,14 @@ public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComp
 
             var hash_ex = DoProbe( key, hash, i );
             
-            if ( arr[ hash_ex ] == null ) {
+            if ( arr[ hash_ex ] == null )
                 return not_found;
-            }
 
-            if ( arr[ hash_ex ].deleted ) {
+            if ( arr[ hash_ex ].deleted )
                 continue;
-            }
 
-            if ( arr[ hash_ex ].key.CompareTo( key ) == 0 ) {
+            if ( EqualityComparer<TKey>.Default.Equals(arr[ hash_ex ].key,  key ) )
                 return new Tuple<bool, uint>( true, hash_ex );
-            }
         }
 
         return not_found;
@@ -194,6 +202,7 @@ public class DicOpenAddr<TKey, TValue> : Hashing<TKey, TValue> where TKey: IComp
 
     void _delete( uint index ) {
         arr[ index ].deleted = true;
+        total_deleted++;
         count_elements--;
         TableHalfеning_FullRehash();
     }
