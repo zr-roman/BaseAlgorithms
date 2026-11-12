@@ -6,7 +6,7 @@ namespace TestingForHashingCs
     internal static class TableAssert
     {
         /// <summary>The key is in the table and has the expected value.</summary>
-        public static void Found<TKey, TValue>(Hashing<TKey, TValue> table, TKey key, TValue expected, string message = null)
+        public static void Found<TKey, TValue>(HashTable<TKey, TValue> table, TKey key, TValue expected, string message = null)
         {
             bool found = table.Search(key, out var value);
             Assert.IsTrue(found, message ?? $"Key {key} must be found");
@@ -14,7 +14,7 @@ namespace TestingForHashingCs
         }
 
         /// <summary>The key is not in the table, and the out value is default, as in Dictionary.TryGetValue.</summary>
-        public static void NotFound<TKey, TValue>(Hashing<TKey, TValue> table, TKey key, string message = null)
+        public static void NotFound<TKey, TValue>(HashTable<TKey, TValue> table, TKey key, string message = null)
         {
             bool found = table.Search(key, out var value);
             Assert.IsFalse(found, message ?? $"Key {key} must not be found");

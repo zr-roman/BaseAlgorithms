@@ -12,9 +12,9 @@ namespace TestingForHashingCs
         /// <summary>Capacity passed to PerfectHashTable; the other tables ignore it.</summary>
         protected const int Capacity = 1000;
 
-        protected abstract Hashing<int, string> CreateIntTable();
-        protected abstract Hashing<string, int> CreateStringTable();
-        protected abstract Hashing<double, string> CreateDoubleTable();
+        protected abstract HashTable<int, string> CreateIntTable();
+        protected abstract HashTable<string, int> CreateStringTable();
+        protected abstract HashTable<double, string> CreateDoubleTable();
 
         private CultureInfo savedCulture;
 
@@ -28,12 +28,12 @@ namespace TestingForHashingCs
         [TestCleanup]
         public void RestoreCulture() => CultureInfo.CurrentCulture = savedCulture;
 
-        private static void AssertFound<TKey, TValue>(Hashing<TKey, TValue> table, TKey key, TValue expected)
+        private static void AssertFound<TKey, TValue>(HashTable<TKey, TValue> table, TKey key, TValue expected)
         {
             TableAssert.Found(table, key, expected);
         }
 
-        private static void AssertNotFound<TKey, TValue>(Hashing<TKey, TValue> table, TKey key)
+        private static void AssertNotFound<TKey, TValue>(HashTable<TKey, TValue> table, TKey key)
         {
             TableAssert.NotFound(table, key);
         }
@@ -42,7 +42,7 @@ namespace TestingForHashingCs
         /// Insert of a key that is already in the table is an error: every table throws
         /// ArgumentException("Key duplicating is not allowed!"). If the type of the exception changes, change it here.
         /// </summary>
-        private static void AssertDuplicateIsRejected(Hashing<int, string> table, int key)
+        private static void AssertDuplicateIsRejected(HashTable<int, string> table, int key)
         {
             Assert.ThrowsException<ArgumentException>(() => table.Insert(key, "duplicate"), $"Duplicate of key {key} was accepted");
         }
@@ -258,42 +258,42 @@ namespace TestingForHashingCs
     [TestClass]
     public class ChainingHashTableContract : DictionaryContractTests
     {
-        protected override Hashing<int, string> CreateIntTable() => new ChainingHashTable<int, string>();
-        protected override Hashing<string, int> CreateStringTable() => new ChainingHashTable<string, int>();
-        protected override Hashing<double, string> CreateDoubleTable() => new ChainingHashTable<double, string>();
+        protected override HashTable<int, string> CreateIntTable() => new ChainingHashTable<int, string>();
+        protected override HashTable<string, int> CreateStringTable() => new ChainingHashTable<string, int>();
+        protected override HashTable<double, string> CreateDoubleTable() => new ChainingHashTable<double, string>();
     }
 
     [TestClass]
     public class OpenAddressingHashTableContract : DictionaryContractTests
     {
-        protected override Hashing<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>();
-        protected override Hashing<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>();
-        protected override Hashing<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>();
+        protected override HashTable<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>();
+        protected override HashTable<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>();
+        protected override HashTable<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>();
     }
 
     /// <summary>The same tests for open addressing with linear probing (the default is quadratic).</summary>
     [TestClass]
     public class OpenAddressingLinearProbingContract : DictionaryContractTests
     {
-        protected override Hashing<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>(ProbingMethod.LINEAR_PROBING);
-        protected override Hashing<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>(ProbingMethod.LINEAR_PROBING);
-        protected override Hashing<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>(ProbingMethod.LINEAR_PROBING);
+        protected override HashTable<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>(ProbingMethod.LINEAR_PROBING);
+        protected override HashTable<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>(ProbingMethod.LINEAR_PROBING);
+        protected override HashTable<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>(ProbingMethod.LINEAR_PROBING);
     }
 
     /// <summary>The same tests for open addressing with double hashing.</summary>
     [TestClass]
     public class OpenAddressingDoubleHashingContract : DictionaryContractTests
     {
-        protected override Hashing<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>(ProbingMethod.DOUBLE_HASHING);
-        protected override Hashing<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>(ProbingMethod.DOUBLE_HASHING);
-        protected override Hashing<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>(ProbingMethod.DOUBLE_HASHING);
+        protected override HashTable<int, string> CreateIntTable() => new OpenAddressingHashTable<int, string>(ProbingMethod.DOUBLE_HASHING);
+        protected override HashTable<string, int> CreateStringTable() => new OpenAddressingHashTable<string, int>(ProbingMethod.DOUBLE_HASHING);
+        protected override HashTable<double, string> CreateDoubleTable() => new OpenAddressingHashTable<double, string>(ProbingMethod.DOUBLE_HASHING);
     }
 
     [TestClass]
     public class PerfectHashTableContract : DictionaryContractTests
     {
-        protected override Hashing<int, string> CreateIntTable() => new PerfectHashTable<int, string>(Capacity);
-        protected override Hashing<string, int> CreateStringTable() => new PerfectHashTable<string, int>(Capacity);
-        protected override Hashing<double, string> CreateDoubleTable() => new PerfectHashTable<double, string>(Capacity);
+        protected override HashTable<int, string> CreateIntTable() => new PerfectHashTable<int, string>(Capacity);
+        protected override HashTable<string, int> CreateStringTable() => new PerfectHashTable<string, int>(Capacity);
+        protected override HashTable<double, string> CreateDoubleTable() => new PerfectHashTable<double, string>(Capacity);
     }
 }

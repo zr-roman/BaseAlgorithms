@@ -1,12 +1,12 @@
 ﻿namespace HashTables;
 
-public abstract class Hashing<TKey, TValue> {
+public abstract class HashTable<TKey, TValue> {
 
     public abstract void Insert( TKey key, TValue value );
     public abstract void Delete( TKey key );
     public abstract bool Search( TKey key, out TValue value );
 
-    protected Hashing( HashMethod hm = HashMethod.DIVISION ) {
+    protected HashTable( HashMethod hm = HashMethod.DIVISION ) {
 
         rnd = new Random();
 

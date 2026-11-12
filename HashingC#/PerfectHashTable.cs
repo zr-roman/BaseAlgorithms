@@ -5,7 +5,7 @@
 /// </summary>
 /// <typeparam name="TKey">Тип ключа</typeparam>
 /// <typeparam name="TValue">Тип значения</typeparam>
-public class PerfectHashTable<TKey, TValue> : Hashing<TKey, TValue> {
+public class PerfectHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
 	private readonly int max_num_of_keys = 0;
     private const int AvgKeysPerSlot = 5;  // в среднем ключей на ячейку первого уровня

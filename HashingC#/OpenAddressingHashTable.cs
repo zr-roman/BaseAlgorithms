@@ -12,7 +12,7 @@ public enum ProbingMethod
 /// </summary>
 /// <typeparam name="TKey">Тип ключа</typeparam>
 /// <typeparam name="TValue">Тип значения</typeparam>
-public class OpenAddressingHashTable<TKey, TValue> : Hashing<TKey, TValue> {
+public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
     public OpenAddressingHashTable( ProbingMethod probingMethod = ProbingMethod.QUADRATIC_PROBING )
             : base( HashMethod.UNIVERSAL_HASHING ) {

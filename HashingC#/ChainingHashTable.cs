@@ -5,7 +5,7 @@
 /// </summary>
 /// <typeparam name="Key">Тип ключа</typeparam>
 /// <typeparam name="Value">Тип значения</typeparam>
-public class ChainingHashTable<TKey, TValue> : Hashing<TKey, TValue> {
+public class ChainingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
     public ChainingHashTable() : base( HashMethod.UNIVERSAL_HASHING ) {
         arr = new Record[ m ];

@@ -4,7 +4,7 @@ using System.Numerics;
 namespace TestingForHashingCs
 {
     /// <summary>Gives the tests access to the protected helpers of the Hashing base class.</summary>
-    public sealed class HashingProbe<TKey> : Hashing<TKey, int>
+    public sealed class HashingProbe<TKey> : HashTable<TKey, int>
     {
         public HashingProbe() : base(HashMethod.UNIVERSAL_HASHING) { }
 

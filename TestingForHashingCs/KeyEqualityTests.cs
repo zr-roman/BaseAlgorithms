@@ -32,7 +32,7 @@ namespace TestingForHashingCs
     [TestClass]
     public class KeyEqualityTests
     {
-        private static void AssertBothKeysAreStored(Hashing<CaseKey, string> t, CaseKey lower, CaseKey upper)
+        private static void AssertBothKeysAreStored(HashTable<CaseKey, string> t, CaseKey lower, CaseKey upper)
         {
             t.Insert(lower, "lower");
             t.Insert(upper, "upper");
