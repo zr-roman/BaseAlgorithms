@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  dotnet:
+    name: C# / .NET 10
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Build
+        run: dotnet build BaseAlgorithms.sln --configuration Release
+      - name: Test
+        run: dotnet test BaseAlgorithms.sln --configuration Release --no-build
+
+  cpp-gcc:
+    name: C++ / GCC + ASan/UBSan
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Configure
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_CXX_COMPILER=g++
+          "-DCMAKE_CXX_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all"
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test
+        run: ctest --test-dir build --output-on-failure --parallel 4
+
+  cpp-clang:
+    name: C++ / Clang
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test
+        run: ctest --test-dir build --output-on-failure --parallel 4
+
+  cpp-msvc:
+    name: C++ / MSVC
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Configure
+        run: cmake -S . -B build
+      - name: Build
+        run: cmake --build build --config Debug --parallel
+      - name: Test
+        run: ctest --test-dir build -C Debug --output-on-failure --parallel 4
