@@ -1,5 +1,7 @@
 # BaseAlgorithms
 
+[![CI](https://github.com/zr-roman/BaseAlgorithms/actions/workflows/ci.yml/badge.svg)](https://github.com/zr-roman/BaseAlgorithms/actions/workflows/ci.yml)
+
 Classic algorithms and data structures implemented from scratch in C++ and C#, mostly following
 Cormen et al., *Introduction to Algorithms* (CLRS). The goal is to understand how each one works,
 so the standard library containers and algorithms are deliberately not used for the things being implemented.
