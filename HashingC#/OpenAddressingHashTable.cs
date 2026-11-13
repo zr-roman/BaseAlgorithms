@@ -27,40 +27,18 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
         ArgumentNullException.ThrowIfNull(key);
 
         if ( search( key ).Found )
-            throw new ArgumentException("Key duplicating is not allowed!");
-
-        void func() {
-            curr_key = key;
-            curr_value = value;
-            TableDoubling_FullRehash_And_CallInsert();
-        }
+            throw new ArgumentException( "Key duplicating is not allowed!" );
 
         if ( count_elements + total_deleted >= arr.Length / 2 ) {
-            if (count_elements >= arr.Length / 4)
-            {
-                func(); // живых ключей много - удвоить таблицу
-                return;
-            }
-            TableResizing_FullRehash(m); // место заняли удалённые записи - пересобрать в том же размере
+            if ( count_elements >= arr.Length / 4)
+                TableDoubling_FullRehash();      // живых ключей много - удвоить таблицу
+            else
+                TableResizing_FullRehash(m); // место заняли удалённые записи - пересобрать в том же размере
         }
 
-        var hash = GetHash( key );
-
-        bool done = false;
-        for ( uint i = 0; i < arr.Length; i++ ) {
-            var hash_ex = DoProbe( key, hash, i );
-            if ( arr[ hash_ex ] == null || arr[ hash_ex ].deleted ) {
-                if (arr[ hash_ex ] != null)
-                    total_deleted--; // удалённая запись заменяется живой
-
-                _insert( hash_ex, key, value );
-                done = true;
-                break;
-            }
-        }
-
-        if ( !done )
-            func();
+        // если проба не нашла свободной ячейки - удвоить таблицу и попробовать снова
+        while ( !TryPlace( key, value ) )
+            TableDoubling_FullRehash();
     }
 
     public override void Delete( TKey key ) {
@@ -86,9 +64,6 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
     const ulong C2 = 3;   // c2 = 3/2
     const ulong DEN = 2;
 
-    TKey curr_key;
-    TValue curr_value;
-
     uint count_elements; // всего элементов со значениями
 
     uint total_deleted; // всего элементов помеченных как удаленные
@@ -100,6 +75,32 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
     };
 
     Record[] arr; // main table
+
+    // Поставить новый ключ в первую свободную или удалённую ячейку его последовательности проб
+    private bool TryPlace( TKey key, TValue value ) {
+
+        var hash = GetHash( key );
+
+        for ( uint i = 0; i < arr.Length; i++ ) {
+            var hash_ex = DoProbe( key, hash, i );
+            if ( arr[ hash_ex ] == null || arr[ hash_ex ].deleted ) {
+                if ( arr[ hash_ex ] != null )
+                    total_deleted--; // удалённая запись заменяется живой
+
+                _insert( hash_ex, key, value );
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void TableDoubling_FullRehash() {
+        if ( (ulong)m * 2 > uint.MaxValue )
+            throw new InvalidOperationException( "Limit exceeded!" );
+
+        TableResizing_FullRehash( m * 2 );
+    }
 
     private void TableResizing_FullRehash( uint new_size ) {
 
@@ -131,16 +132,6 @@ public class OpenAddressingHashTable<TKey, TValue> : HashTable<TKey, TValue> {
 
         total_deleted = 0;
         arr = new_arr;
-    }
-
-    void TableDoubling_FullRehash_And_CallInsert( ) {
-        long t = m;
-        long tmp = t * 2;
-        if ( tmp > uint.MaxValue )
-            throw new InvalidOperationException( "Limit exceeded!" );
-
-        TableResizing_FullRehash( m * 2 );
-        Insert( curr_key, curr_value );
     }
 
     void TableHalfеning_FullRehash() {
