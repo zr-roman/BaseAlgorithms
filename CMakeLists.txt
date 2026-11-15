@@ -35,5 +35,16 @@ enable_testing()
 add_executable(sorting_tests TestingForSortingsC++/UnitTest2.cpp)
 target_link_libraries(sorting_tests PRIVATE sortings GTest::gtest_main)
 
+# Random number generators xoshiro256** and LCG: header-only, their tests and a small example.
+# RandomNumberGenerationC++.cpp uses windows.h and is not built here.
+add_executable(random_tests
+    TestingForRandomNumberGenerationC++/RandomTest.cpp
+    TestingForRandomNumberGenerationC++/LcgTest.cpp)
+target_include_directories(random_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(random_tests PRIVATE GTest::gtest_main)
+
+add_executable(random_example "RandomNumberGenerationC++/example_main.cpp")
+
 include(GoogleTest)
 gtest_discover_tests(sorting_tests)
+gtest_discover_tests(random_tests)

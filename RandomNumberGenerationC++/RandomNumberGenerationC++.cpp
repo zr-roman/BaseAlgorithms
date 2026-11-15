@@ -1,3 +1,4 @@
+// Мои эксперименты с генерацией случайных чисел.
 
 #include <iostream>
 #include <windows.h>
