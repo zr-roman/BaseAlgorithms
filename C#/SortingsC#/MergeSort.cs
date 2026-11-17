@@ -6,11 +6,7 @@ public static partial class Lib {
         DoPerformSort( new MergeSortInner<T>( arr, order ) );
     }
 
-    private class MergeSortInner<T> : SortAbstract<T> where T: IComparable<T> {
-                    
-        public MergeSortInner( T[] arr, Order order ) : base( arr, order) {
-
-        }
+    private class MergeSortInner<T>(T[] arr, Order order) : SortAbstract<T>( arr, order) where T: IComparable<T> {
 
         protected override void DoSort( uint start, uint end ) {
             if ( start >= end )

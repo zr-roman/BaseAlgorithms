@@ -6,11 +6,7 @@ public static partial class Lib {
         DoPerformSort( new IterativeMergeSortInner<T>( arr, order ) );
     }
 
-    private class IterativeMergeSortInner<T> : SortAbstract<T> where T: IComparable<T> {
-                    
-        public IterativeMergeSortInner( T[] arr, Order order ) : base( arr, order) {
-
-        }
+    private class IterativeMergeSortInner<T>(T[] arr, Order order) : SortAbstract<T>( arr, order) where T: IComparable<T> {
 
         protected override void DoSort( uint start, uint end ) {
 
@@ -58,8 +54,6 @@ public static partial class Lib {
             MergeAllParts(out var listOfTasks, dic);
 
             FillResultingArray(listOfTasks, dic).GetAwaiter().GetResult();
-
-            dic = null;
         }
 
         private void FillInDictionary(Dictionary<int, T[]> dic, uint i, int step, long en, ref int counter) {
@@ -87,9 +81,7 @@ public static partial class Lib {
 
             while (dic[0].Length != arr.Length ) { 
                 for (int i = 0; i < dic.Count && i + step / 2 < dic.Count; i+= step) {
-                    
-                    var j = i; 
-                    
+                    var j = i;
                     listOfTasks.Add( Task.Factory.StartNew(() => { Merge2(dic, j, j + step / 2); }) );
                 }
                 Task.WhenAll(listOfTasks).ConfigureAwait(false).GetAwaiter().GetResult();
