@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.12.12405.243
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphsCs", "GraphsCs\GraphsCs.csproj", "{E19CD971-0475-4678-B2EF-E700C4E3AC38}"
 EndProject
@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StringMatchingCs", "StringM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElementaryDataStructuresCs", "ElementaryDataStructuresC#\ElementaryDataStructuresCs.csproj", "{819B57BA-77DB-4EC7-82FD-9CA27264856C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecombinationsCs", "RecombinationsC#\RecombinationsCs.csproj", "{1EDD916E-30B6-4A39-959F-5805764E6D59}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingForPermutationsCs", "TestingForPermutationsCs\TestingForPermutationsCs.csproj", "{B4EEBD69-5FD9-4D1A-9E50-F1C78AC93D6A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingForGraphsCs", "TestingForGraphsCs\TestingForGraphsCs.csproj", "{57E176C2-54D7-4090-8B07-F43071096587}"
 EndProject
@@ -25,13 +25,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingForElementaryDataStr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingForStringMatchingCs", "TestingForStringMatchingCs\TestingForStringMatchingCs.csproj", "{7F0D63D7-038D-49CA-92FB-7090B4657CEF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PermutationsCs", "PermutationsC#\PermutationsCs.csproj", "{F184798C-019A-CB09-9689-D0F968FFF8C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{E19CD971-0475-4678-B2EF-E700C4E3AC38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -54,10 +53,10 @@ Global
 		{819B57BA-77DB-4EC7-82FD-9CA27264856C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{819B57BA-77DB-4EC7-82FD-9CA27264856C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{819B57BA-77DB-4EC7-82FD-9CA27264856C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1EDD916E-30B6-4A39-959F-5805764E6D59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1EDD916E-30B6-4A39-959F-5805764E6D59}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1EDD916E-30B6-4A39-959F-5805764E6D59}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1EDD916E-30B6-4A39-959F-5805764E6D59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4EEBD69-5FD9-4D1A-9E50-F1C78AC93D6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4EEBD69-5FD9-4D1A-9E50-F1C78AC93D6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4EEBD69-5FD9-4D1A-9E50-F1C78AC93D6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4EEBD69-5FD9-4D1A-9E50-F1C78AC93D6A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{57E176C2-54D7-4090-8B07-F43071096587}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{57E176C2-54D7-4090-8B07-F43071096587}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57E176C2-54D7-4090-8B07-F43071096587}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -78,5 +77,12 @@ Global
 		{7F0D63D7-038D-49CA-92FB-7090B4657CEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F0D63D7-038D-49CA-92FB-7090B4657CEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F0D63D7-038D-49CA-92FB-7090B4657CEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F184798C-019A-CB09-9689-D0F968FFF8C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F184798C-019A-CB09-9689-D0F968FFF8C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F184798C-019A-CB09-9689-D0F968FFF8C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F184798C-019A-CB09-9689-D0F968FFF8C5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

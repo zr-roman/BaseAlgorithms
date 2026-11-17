@@ -1,5 +1,5 @@
 ﻿
-namespace Recombinations {
+namespace Permutations {
 
     class Program {
         
@@ -7,7 +7,7 @@ namespace Recombinations {
             
             var str = "abcde";
             
-            var result = GetAllRecombinations( str );
+            var result = GetAllPermutations( str );
             var counter = 0;
             foreach ( var item in result ) {
                 counter++;
@@ -17,7 +17,18 @@ namespace Recombinations {
            Console.ReadLine();
         }
 
-        static HashSet<string> GetAllRecombinations( string s, int index = 1, HashSet<string> set = null ) {
+        public static HashSet<string> GetAllPermutations(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+                throw new ArgumentException("Строка не должна быть пустой.", nameof(s));
+
+            if (s.Length == 1)
+                return [ s ];
+
+            return GetAllPermutations( s, 1, [ s[0].ToString() ] );
+        }
+
+        private static HashSet<string> GetAllPermutations( string s, int index = 1, HashSet<string> set = null ) {
 
             // защита от дурака
             if (set == null || ( set != null && set.Count == 0 ))
@@ -40,7 +51,7 @@ namespace Recombinations {
             }
             // рекурсивно вызвать функцию, в случае если индекс не вышел за пределы строки
             if ( s.Length - 1 > index )
-               return GetAllRecombinations( s, index + 1, newSet );
+               return GetAllPermutations( s, index + 1, newSet );
             else
                 return newSet;
         }
