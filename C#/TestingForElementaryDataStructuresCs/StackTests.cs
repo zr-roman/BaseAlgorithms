@@ -57,4 +57,57 @@ public class StackTests
         Assert.AreEqual("second", stack.Peek());
         Assert.AreEqual("second", stack.Pop());
     }
+
+    [TestMethod]
+    public void PushAndPeek_WithZeroAndNegativeValues_UseValuesNotSentinels()
+    {
+        var stack = new StackViaTwoQueues<int>();
+        stack.Push(0);
+        stack.Push(-1);
+
+        Assert.AreEqual(-1, stack.Peek());
+        Assert.AreEqual(-1, stack.Pop());
+        Assert.AreEqual(0, stack.Peek());
+        Assert.AreEqual(0, stack.Pop());
+    }
+
+    [TestMethod]
+    public void PushNullAndPeekAndPop_PreserveNullValue()
+    {
+        var stack = new StackViaTwoQueues<string>();
+        stack.Push("item");
+        stack.Push(null);
+
+        Assert.IsNull(stack.Peek());
+        Assert.IsNull(stack.Pop());
+        Assert.AreEqual("item", stack.Pop());
+    }
+
+    [TestMethod]
+    public void MixedOperations_MatchStandardStack()
+    {
+        var actual = new StackViaTwoQueues<int>();
+        var expected = new Stack<int>();
+
+        for (int i = 0; i < 200; i++)
+        {
+            actual.Push(i);
+            expected.Push(i);
+
+            if (i % 3 == 0)
+            {
+                Assert.AreEqual(expected.Peek(), actual.Peek(), $"top at step {i}");
+            }
+
+            if (i % 4 == 0)
+            {
+                Assert.AreEqual(expected.Pop(), actual.Pop(), $"pop at step {i}");
+            }
+        }
+
+        while (expected.Count > 0)
+        {
+            Assert.AreEqual(expected.Pop(), actual.Pop());
+        }
+    }
 }
