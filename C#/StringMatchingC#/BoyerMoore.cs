@@ -1,76 +1,89 @@
-﻿
-// по Макконнеллу
+namespace StringMatching;
 
-using System;
-using System.Collections.Generic;
-
+// Boyer–Moore string search using the bad-character and good-suffix rules.
 public class BoyerMoore {
 	public int[] GetAllOccurences( string s, string pattern ) {
-		Dictionary<int, int> slide = GetSlide( pattern );
-		int[] jump = GetJump( pattern );
-		var res = new List<int>();
-		var textLoc = pattern.Length - 1;
-		var patternLoc = pattern.Length - 1;
-		while ( textLoc < s.Length && patternLoc >= 0 ) {
-			if ( s[ textLoc ] == pattern[ patternLoc ] ) {
-				textLoc--;
-				patternLoc--;
-			} else {
-				textLoc += Math.Max( slide.ContainsKey( s[ textLoc ]) ? slide[ s[ textLoc ] ] : 0, jump[ patternLoc ] );
-				patternLoc = pattern.Length - 1;
+		ArgumentNullException.ThrowIfNull( s );
+		ArgumentNullException.ThrowIfNull( pattern );
+
+		if ( pattern.Length == 0 ) {
+			var boundaries = new int[ s.Length + 1 ];
+			for ( int i = 0; i < boundaries.Length; i++ ) {
+				boundaries[ i ] = i;
+			}
+			return boundaries;
+		}
+
+		if ( pattern.Length > s.Length ) {
+			return Array.Empty<int>();
+		}
+
+		var lastOccurrence = BuildLastOccurrenceTable( pattern );
+		var goodSuffixShift = BuildGoodSuffixShiftTable( pattern );
+		var matches = new List<int>();
+		var start = 0;
+
+		while ( start <= s.Length - pattern.Length ) {
+			var patternIndex = pattern.Length - 1;
+			while ( patternIndex >= 0 && pattern[ patternIndex ] == s[ start + patternIndex ] ) {
+				patternIndex--;
 			}
 
-			if ( patternLoc == -1 ) {
-				res.Add( textLoc + 1 );
-				textLoc += Math.Max( slide[ s[ textLoc + 1 ] ], jump[ patternLoc + 1 ] );
-				patternLoc = pattern.Length - 1;
+			if ( patternIndex < 0 ) {
+				matches.Add( start );
+				start += goodSuffixShift[ 0 ];
+				continue;
 			}
+
+			var mismatchedCharacter = s[ start + patternIndex ];
+			var lastIndex = lastOccurrence.TryGetValue( mismatchedCharacter, out var index ) ? index : -1;
+			var badCharacterShift = Math.Max( 1, patternIndex - lastIndex );
+			start += Math.Max( badCharacterShift, goodSuffixShift[ patternIndex + 1 ] );
 		}
-		return res.ToArray();
+
+		return matches.ToArray();
 	}
 
-	private Dictionary<int, int> GetSlide( string pattern ) {
-		var res = new Dictionary<int, int>();
+	private static Dictionary<char, int> BuildLastOccurrenceTable( string pattern ) {
+		var lastOccurrence = new Dictionary<char, int>();
 		for ( int i = 0; i < pattern.Length; i++ ) {
-			res[ pattern[ i ] ] = pattern.Length - 1 - i;
+			lastOccurrence[ pattern[ i ] ] = i;
 		}
-		return res;
+		return lastOccurrence;
 	}
 
-	private int[] GetJump( string pattern ) {
+	private static int[] BuildGoodSuffixShiftTable( string pattern ) {
+		var length = pattern.Length;
+		var shift = new int[ length + 1 ];
+		var borderPosition = new int[ length + 1 ];
 
-		var jump = new List<int>();
-		for ( int i = 0; i < pattern.Length; i++ ) {
-			jump.Add( 2 * pattern.Length - 1 - i );
-		}
+		var i = length;
+		var j = length + 1;
+		borderPosition[ i ] = j;
 
-		var link = new int[ pattern.Length ];
-
-		var test = pattern.Length - 1;
-		var target = pattern.Length;
-		while ( test >= 0 ) {
-			link[ test ] = target;
-			while ( target <= pattern.Length - 1 && pattern[ test ] != pattern[ target ] ) {
-				jump[ target ] = Math.Min( jump[ target ], pattern.Length - 1 - test );
-				target = link[ target ];
+		while ( i > 0 ) {
+			while ( j <= length && pattern[ i - 1 ] != pattern[ j - 1 ] ) {
+				if ( shift[ j ] == 0 ) {
+					shift[ j ] = j - i;
+				}
+				j = borderPosition[ j ];
 			}
-			test--;
-			target--;
+
+			i--;
+			j--;
+			borderPosition[ i ] = j;
 		}
 
-		for ( int i = 0; i <= target; i++ ) {
-			jump[ i ] = Math.Min( jump[ i ], pattern.Length + target - i );
-		}
-
-		var temp = link[ target ];
-		while ( target < pattern.Length && target >= 0 ) {
-			while ( target <= temp && target >= 0 ) {
-				jump[ target ] = Math.Min( jump[ target ], temp - target + pattern.Length );
-				target--;
+		j = borderPosition[ 0 ];
+		for ( i = 0; i <= length; i++ ) {
+			if ( shift[ i ] == 0 ) {
+				shift[ i ] = j;
 			}
-			temp = link[ temp ];
+			if ( i == j ) {
+				j = borderPosition[ j ];
+			}
 		}
-		return jump.ToArray();
+
+		return shift;
 	}
-
 }

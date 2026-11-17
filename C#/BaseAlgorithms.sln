@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingForHashingCs", "Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingForElementaryDataStructuresCs", "TestingForElementaryDataStructuresCs\TestingForElementaryDataStructuresCs.csproj", "{C2A24E9D-8C13-40BD-B3F5-03A7500A1A16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingForStringMatchingCs", "TestingForStringMatchingCs\TestingForStringMatchingCs.csproj", "{7F0D63D7-038D-49CA-92FB-7090B4657CEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,9 @@ Global
 		{C2A24E9D-8C13-40BD-B3F5-03A7500A1A16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2A24E9D-8C13-40BD-B3F5-03A7500A1A16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2A24E9D-8C13-40BD-B3F5-03A7500A1A16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F0D63D7-038D-49CA-92FB-7090B4657CEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F0D63D7-038D-49CA-92FB-7090B4657CEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F0D63D7-038D-49CA-92FB-7090B4657CEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F0D63D7-038D-49CA-92FB-7090B4657CEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

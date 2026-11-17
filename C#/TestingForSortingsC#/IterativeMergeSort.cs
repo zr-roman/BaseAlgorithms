@@ -3,7 +3,6 @@ using Sortings;
 
 namespace Testing
 {
-
     [TestClass]
     public class IterativeMergeSort : TestingBase
     {
@@ -30,6 +29,5 @@ namespace Testing
                 Assertion(order);
             }
         }
-
     }
 }

@@ -2,7 +2,7 @@
 // Время предварительной обработки: 0
 // Время сравнения: Ɵ((n - m + 1)m)
 
-using System.Collections.Generic;
+namespace StringMatching;
 
 public class BruteForce {
 

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿
 namespace Recombinations {
 
     class Program {
@@ -22,12 +20,11 @@ namespace Recombinations {
         static HashSet<string> GetAllRecombinations( string s, int index = 1, HashSet<string> set = null ) {
 
             // защита от дурака
-            if (set == null || ( set != null && set.Count == 0 )) {
+            if (set == null || ( set != null && set.Count == 0 ))
                 set = new HashSet<string> { s[ 0 ].ToString() };
-            }
-            if ( string.IsNullOrEmpty( s ) ) {
+
+            if ( string.IsNullOrEmpty( s ) )
                 throw new Exception("Входящая строка не может быть пустой!");
-            }
 
             // инициализации
             var newChar = s[ index ].ToString();
@@ -42,11 +39,10 @@ namespace Recombinations {
                 }
             }
             // рекурсивно вызвать функцию, в случае если индекс не вышел за пределы строки
-            if ( s.Length - 1 > index ) {
+            if ( s.Length - 1 > index )
                return GetAllRecombinations( s, index + 1, newSet );
-            } else {
+            else
                 return newSet;
-            }
         }
     }
 }
