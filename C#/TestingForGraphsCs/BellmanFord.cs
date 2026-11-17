@@ -43,5 +43,40 @@ namespace TestingForGraphsCs
                 Assert.IsTrue(res.Item2.Contains("2|4"));
             }
         }
+
+        [TestMethod]
+        public void BellmanFord_FindsShortestPathWithNegativeEdgeAndNoNegativeCycle()
+        {
+            var vertices = GraphAlgorithmsTestsHelper.CreateVertices(3);
+            int?[,] matrix =
+            {
+                { null, 4, 5 },
+                { null, null, -3 },
+                { null, null, null }
+            };
+
+            var (noNegativeCycle, treeEdges) = Lib.BellmanFord(matrix, vertices, vertices[0]);
+
+            Assert.IsTrue(noNegativeCycle);
+            Assert.AreEqual(4, vertices[1].d);
+            Assert.AreEqual(1, vertices[2].d);
+            CollectionAssert.AreEquivalent(new[] { "0|1", "1|2" }, treeEdges.ToArray());
+        }
+
+        [TestMethod]
+        public void BellmanFord_DetectsReachableNegativeCycle()
+        {
+            var vertices = GraphAlgorithmsTestsHelper.CreateVertices(3);
+            int?[,] matrix =
+            {
+                { null, 1, null },
+                { null, null, -2 },
+                { null, -2, null }
+            };
+
+            var (noNegativeCycle, _) = Lib.BellmanFord(matrix, vertices, vertices[0]);
+
+            Assert.IsFalse(noNegativeCycle);
+        }
     }
 }

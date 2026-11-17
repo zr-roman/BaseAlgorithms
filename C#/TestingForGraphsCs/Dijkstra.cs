@@ -42,6 +42,26 @@ namespace TestingForGraphsCs
                 Assert.IsTrue(res.Contains("2|4"));
             }            
         }
+
+        [TestMethod]
+        public void Dijkstra_HandlesZeroWeightEdge()
+        {
+            var vertices = GraphAlgorithmsTestsHelper.CreateVertices(3);
+            int?[,] matrix =
+            {
+            { null, 0, 5 },
+            { null, null, 2 },
+            { null, null, null }
+        };
+
+            var treeEdges = Lib.Dijkstra(matrix, vertices, vertices[0]);
+
+            Assert.AreEqual(0, vertices[0].d);
+            Assert.AreEqual(0, vertices[1].d);
+            Assert.AreEqual(2, vertices[2].d);
+            CollectionAssert.AreEquivalent(new[] { "0|1", "1|2" }, treeEdges.ToArray());
+        }
+
     }
 
 }

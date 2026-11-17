@@ -89,5 +89,24 @@ namespace TestingForGraphsCs
             Assert.AreEqual(5, res);
         }
 
+        [TestMethod]
+        public void MaxFlow_UsesResidualReverseEdgeToRerouteEarlierFlow()
+        {
+            var vertices = GraphAlgorithmsTestsHelper.CreateVertices(6);
+            // The first shortest augmenting path is 0->1->3->5. The second must use
+            // residual edge 3->1 to reroute through 0->2->3->1->4->5.
+            int[,] capacities = new int[6, 6];
+            capacities[0, 1] = 1;
+            capacities[0, 2] = 1;
+            capacities[1, 3] = 1;
+            capacities[1, 4] = 1;
+            capacities[2, 3] = 1;
+            capacities[3, 5] = 1;
+            capacities[4, 5] = 1;
+
+            var maxFlow = Lib.MaxFlow(capacities, vertices.ToList());
+
+            Assert.AreEqual(2, maxFlow);
+        }
     }
 }
