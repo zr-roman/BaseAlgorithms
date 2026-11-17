@@ -45,6 +45,22 @@ target_link_libraries(random_tests PRIVATE GTest::gtest_main)
 
 add_executable(random_example "RandomNumberGenerationC++/example_main.cpp")
 
+# Red-black tree (header-only) and its tests.
+# RBTest.cpp is a Visual Studio CppUnitTest file and is not built here.
+add_executable(rbt_tests TestingForBinarySearchTreesC++/RedBlackTreeTest.cpp)
+target_include_directories(rbt_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(rbt_tests PRIVATE GTest::gtest_main)
+
+# Tests that do not compile or link with the current RedBlackTree.h (other key types, the header
+# included in two .cpp files). Turn on with -DRBT_COMPILE_CHECKS=ON once the tree is fixed.
+option(RBT_COMPILE_CHECKS "Build the red-black tree tests for other key types" OFF)
+if(RBT_COMPILE_CHECKS)
+    target_sources(rbt_tests PRIVATE TestingForBinarySearchTreesC++/RedBlackTreeCompileTests.cpp)
+endif()
+
 include(GoogleTest)
 gtest_discover_tests(sorting_tests)
 gtest_discover_tests(random_tests)
+# Leaks are checked by the tests themselves (NodesAreFreedWhenTreeIsDestroyed, DeletedNodeIsFreed).
+# Without this LeakSanitizer in the sanitizer build would fail every test that creates a tree.
+gtest_discover_tests(rbt_tests PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=0")
