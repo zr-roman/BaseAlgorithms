@@ -108,7 +108,7 @@ public:
         return _minheap.size();
     };
 
-    T& extract_min() {
+    T extract_min() {
 
         auto elm = _minheap.at( 0 );
 
